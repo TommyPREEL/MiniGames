@@ -2,12 +2,11 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
-/* import components */
-import ErrorPage from '../components/ErrorPage';
 
 /* import pages */
 import Home from '../pages/Home';
 import Settings from '../pages/Settings';
+import ErrorPage from '../pages/ErrorPage';
 
 /* import routes */
 import RouteUsers from './RouteUsers';

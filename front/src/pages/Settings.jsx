@@ -5,7 +5,7 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 
-import '../styles/Settings.css';
+// import '../styles/Settings.css';
 
 function Settings() {
 

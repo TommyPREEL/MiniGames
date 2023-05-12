@@ -34,7 +34,7 @@ export default function AdminDashboard() {
             <div className="card">
                 <TabMenu activeIndex={tabIndex} style={{margin:10}} model={items} onTabChange={(e) => handleTabChange(e.index)}/>
             </div>
-            {tabIndex === 0 ? <AdminDashboardOrders/> : <AdminDashboardProducts/>}
+            {/* {tabIndex === 0 ? <AdminDashboardOrders/> : <AdminDashboardProducts/>} */}
         </div>
     );
 }
