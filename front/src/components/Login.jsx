@@ -116,7 +116,7 @@ function Login() {
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
+              label="Remember meeeeeeeeeeee"
             />
             <Button
               type="submit"
