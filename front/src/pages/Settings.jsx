@@ -121,7 +121,7 @@ function Settings() {
   );
 
   return (
-    <div class="formulaire">
+    <div className="formulaire">
       <Dialog visible={deleteDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteDialogFooter} onHide={hideDeleteDialog}>
           <div className="confirmation-content">
             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />

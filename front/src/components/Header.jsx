@@ -17,7 +17,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 
-let pages = ['Products'/*, 'Categories'*/];
+let pages = ['Challenges', 'Tournament'];
 let settings = ['Log in', 'Sign up'];
 
 
@@ -55,14 +55,20 @@ function Header() {
 
   function handleClickPage(page){
     switch(page){
-      case 'Products':
-          navigate('/products');
+      case 'Home':
+          navigate('/');
           break;
-      case 'Categories':
-          navigate('/categories');
+      case 'Challenges':
+          navigate('/challenges');
+          break;
+      case 'Tournament':
+          navigate('/tournament');
+          break;
+      case 'Notifications':
+          navigate('/notifications');
           break;
       default:
-          navigate('/erreurrr');
+          navigate('/errorPage');
   }
   };
 
@@ -74,12 +80,6 @@ function Header() {
         case 'Sign up':
             navigate('/users/register');
             break;
-        case 'My Cart':
-          navigate('/cart');
-          break;
-        case 'My orders':
-          navigate('/orders');
-          break;
         case 'Settings':
           navigate('/settings');
           break;
@@ -94,7 +94,7 @@ function Header() {
           navigate('/users/connect');
           break;
         default:
-          navigate('/erreurrr');
+          navigate('/errorPage');
     }
   };
   
@@ -200,6 +200,9 @@ function Header() {
           {admin}
           {welcome}
           <Box sx={{ flexGrow: 0 }}>
+          <IconButton onClick={() => handleClickPage("Notifications")} sx={{ p: 0 }} style={{marginLeft:10}}>
+          <i className="pi pi-bell"></i>
+          </IconButton>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <AccountCircle />
@@ -228,9 +231,6 @@ function Header() {
               ))}
             </Menu>
           </Box>
-          <IconButton onClick={() => handleActionSelectedOnUser("My Cart")} sx={{ p: 0 }} style={{marginLeft:10}}>
-            <ShoppingCartIcon />
-          </IconButton>
         </Toolbar>
       </Container>
     </AppBar>

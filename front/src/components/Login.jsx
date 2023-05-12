@@ -22,7 +22,7 @@ function Copyright(props) {
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
       <Link color="inherit" href="https://mui.com/">
-        The Lord of the Orders
+        Tommy PREEL
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
