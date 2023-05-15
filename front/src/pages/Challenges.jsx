@@ -30,53 +30,18 @@ function Challenges() {
         })
         .then(response => response.json())
         .then(dataBack => {
-            // setPlayerList(dataBack.filter(localStorage.getItem("user")))
-            // setPlayerList(dataBack)
-
             const dataBackArray = Object.entries(dataBack);
-            console.log(dataBackArray)
-            let filteredPlayerList = null;
-            dataBackArray.forEach((player) => {
-              // console.log(player[1].username)
-            // })
-              if(player[1].username !== JSON.parse(localStorage.getItem("user")).username) {
-                console.log("coucou")
-                filteredPlayerList.push(player[1])
+            let filteredPlayerList = [];
+            dataBackArray.forEach((user) => {
+              console.log(user[1].username)
+              console.log(JSON.parse(localStorage.getItem("user")).username)
+              if(user[1].username !== JSON.parse(localStorage.getItem("user")).username){
+                filteredPlayerList.push(user[1])
               }
+              console.log(user[1])
             })
-            setPlayerList(filteredPlayerList)
             console.log(filteredPlayerList)
-
-
-
-            // let test = asArray.filter((user) => JSON.parse(localStorage.getItem("user")).username === user[1].username);
-            // console.log(test)
-
-            // asArray.forEach((player) => {
-            //   console.log(typeof player[1].username)
-            // })
-
-
-
-            // const filtered = asArray.filter((user) => {
-            //   console.log(localStorage.getItem("user") === user)
-            //   console.log(user)
-            //   return true;
-            // });
-            // console.log(filtered)
-
-
-            // Convert the key/value array back to an object:
-            // `{ name: 'Luke Skywalker', title: 'Jedi Knight' }`
-
-
-            // const justStrings = Object.fromEntries(filtered);
-
-
-
-            // let filteredPlayerList = [...dataBack].filter(localStorage.getItem("user"))
-            // console.log(dataBack)
-            // console.log(filteredPlayerList)
+            setPlayerList(filteredPlayerList)
         })
         .catch(error => {
           console.error(error);
