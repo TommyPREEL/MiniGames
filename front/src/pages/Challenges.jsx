@@ -31,18 +31,33 @@ function Challenges() {
         .then(response => response.json())
         .then(dataBack => {
             // setPlayerList(dataBack.filter(localStorage.getItem("user")))
-            setPlayerList(dataBack)
+            // setPlayerList(dataBack)
 
-            const asArray = Object.entries(dataBack);
-            console.log(asArray)
-
-            asArray.filter(() => ! localStorage.getItem("user"));
-            console.log(asArray)
-
-            asArray.forEach((player) => {
-              console.log(player)
+            const dataBackArray = Object.entries(dataBack);
+            console.log(dataBackArray)
+            let filteredPlayerList = null;
+            dataBackArray.forEach((player) => {
+              // console.log(player[1].username)
+            // })
+              if(player[1].username !== JSON.parse(localStorage.getItem("user")).username) {
+                console.log("coucou")
+                filteredPlayerList.push(player[1])
+              }
             })
-            console.log(localStorage.getItem("user"));
+            setPlayerList(filteredPlayerList)
+            console.log(filteredPlayerList)
+
+
+
+            // let test = asArray.filter((user) => JSON.parse(localStorage.getItem("user")).username === user[1].username);
+            // console.log(test)
+
+            // asArray.forEach((player) => {
+            //   console.log(typeof player[1].username)
+            // })
+
+
+
             // const filtered = asArray.filter((user) => {
             //   console.log(localStorage.getItem("user") === user)
             //   console.log(user)

@@ -84,7 +84,7 @@ function Header() {
           navigate('/settings');
           break;
         case 'Logout':
-          fetch('users/logout', {
+          fetch('http://localhost:5000/api/users/logout', {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json'
@@ -108,7 +108,7 @@ function Header() {
       if(JSON.parse(localStorage.getItem("user")).is_admin === 1){
         admin = <div onClick={handleClickAdmin} style={{marginRight:10, cursor:'pointer', backgroundColor:'white', color:"#1976d2", padding:10, borderRadius:'20px'}}>Admin Dashboard</div>;
       }
-    welcome = <div style={{marginRight:10}}>{JSON.parse(localStorage.getItem("user")).lastname} {JSON.parse(localStorage.getItem("user")).firstname}</div>;
+    welcome = <div style={{marginRight:10}}>{JSON.parse(localStorage.getItem("user")).username}</div>;
   }
 
   return (
