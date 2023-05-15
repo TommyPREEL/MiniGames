@@ -41,14 +41,14 @@ function Login() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    if(data.get('email') === '' || data.get('password') === ''){
+    if(data.get('username') === '' || data.get('password') === ''){
       toast.current.show({severity:'error', summary: 'Error', detail:'Please fill all fields', life: 3000});
     }else{
       let inputs = {
-          email: data.get('email'),
+          username: data.get('username'),
           password: data.get('password'),
         }
-      fetch('/users/connect', {
+      fetch('http://localhost:5000/api/users/connect', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -70,7 +70,7 @@ function Login() {
  
   const access = () => {
     if(localStorage.getItem('user'))
-      return <Navigate to='/access_denied'></Navigate>
+      return <Navigate to='/'></Navigate>
   }
   
   return (
@@ -98,10 +98,10 @@ function Login() {
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="email Address"
-              name="email"
-              autoComplete="email"
+              id="username"
+              label="Username"
+              name="username"
+              autoComplete="username"
               autoFocus
             />
             <TextField
@@ -114,10 +114,10 @@ function Login() {
               id="password"
               autoComplete="current-password"
             />
-            <FormControlLabel
+            {/* <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
-            />
+            /> */}
             <Button
               type="submit"
               fullWidth
@@ -127,11 +127,11 @@ function Login() {
               Sign In
             </Button>
             <Grid container>
-              <Grid item xs>
+              {/* <Grid item xs>
                 <Link href="#" variant="body2">
                   Forgot password?
                 </Link>
-              </Grid>
+              </Grid> */}
               <Grid item>
                 <Link href="/users/register" variant="body2">
                   {"Don't have an account? Sign Up"}

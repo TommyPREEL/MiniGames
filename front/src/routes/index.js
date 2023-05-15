@@ -13,14 +13,14 @@ import Notifications from '../pages/Notifications';
 import RouteUsers from './RouteUsers';
 import RouteAdmin from './RouteAdmin';
 import RouteChallenges from './RouteChallenges';
-import RouteTournament from './RouteTournament';
+import RouteTournaments from './RouteTournaments';
 
 function RoutesIndex() {
   return (
     <Routes>
       <Route exact path="/" element={<Home/>} />
       <Route path="/challenges/*" element={<RouteChallenges/>} />
-      <Route path="/tournament/*" element={<RouteTournament/>} />
+      <Route path="/tournaments/*" element={<RouteTournaments/>} />
       <Route path="/notifications" element={<Notifications/>} />
       <Route path="/users/*" element={<RouteUsers/>} />
       <Route path="/admin/*" element={<RouteAdmin/>} />

@@ -20,7 +20,7 @@ function Copyright(props) {
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
       <Link color="inherit" href="https://mui.com/">
-        The Lord of the Orders
+        Tommy PREEL
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -39,17 +39,15 @@ function Register() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    if(data.get('email') === '' || data.get('password') === '' || data.get('address') === '' || data.get('postalCode') === '' || data.get('town') === '' || data.get('lastName') === '' || data.get('firstName') === ''){
+    if(data.get('email') === '' || data.get('username') === '' || data.get('password') === ''){
       toast.current.show({severity:'error', summary: 'Error', detail:'Please fill all fields', life: 3000});
     }else{
        let inputs = {
         email: data.get('email'),
+        username: data.get('username'),
         password: data.get('password'),
-        address: (data.get('address')+" " + data.get('postalCode') + " " + data.get('town')),
-        lastname : data.get('lastName'),
-        firstname : data.get('firstName')
       }
-    fetch('/users/register', {
+    fetch('http://localhost:5000/api/users/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -58,8 +56,12 @@ function Register() {
     })
     .then(response => response.json())
     .then(dataBack => {
-      localStorage.setItem('user', JSON.stringify(dataBack));
-      navigate('/');
+      if(dataBack === "This email/username is already taken"){
+        toast.current.show({severity:'error', summary: 'Error', detail:'This email or username is already taken', life: 3000});
+      }else{
+        localStorage.setItem('user', JSON.stringify(dataBack));
+        navigate('/');
+      }
     })
     .catch(error => {
       console.error(error);
@@ -69,7 +71,7 @@ function Register() {
 
   const access = () => {
     if(localStorage.getItem('user'))
-      return <Navigate to='/access_denied'></Navigate>
+      return <Navigate to='/'></Navigate>
   }
 
   return (
@@ -96,33 +98,22 @@ function Register() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  autoComplete="given-name"
-                  name="firstName"
                   required
                   fullWidth
-                  id="firstName"
-                  label="First Name"
-                  autoFocus
+                  id="email"
+                  label="Email"
+                  name="email"
+                  autoComplete="email"
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   required
                   fullWidth
-                  id="lastName"
-                  label="Last Name"
-                  name="lastName"
-                  autoComplete="family-name"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="email Address"
-                  name="email"
-                  autoComplete="email"
+                  id="username"
+                  label="Username"
+                  name="username"
+                  autoComplete="username"
                 />
               </Grid>
               <Grid item xs={12}>
@@ -134,42 +125,6 @@ function Register() {
                   type="password"
                   id="password"
                   autoComplete="new-password"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="address"
-                  label="Address"
-                  name="address"
-                  autoComplete="family-name"
-                />
-              </Grid>
-              <Grid item xs={12} sm={5}>
-                <TextField
-                  required
-                  fullWidth
-                  id="postalCode"
-                  label="Postal Code"
-                  name="postalCode"
-                  autoComplete="family-name"
-                />
-              </Grid>
-              <Grid item xs={12} sm={7}>
-                <TextField
-                  required
-                  fullWidth
-                  id="town"
-                  label="Town"
-                  name="town"
-                  autoComplete="family-name"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="allowExtraemails" color="primary" />}
-                  label="I want to receive inspiration, marketing promotions and updates via email."
                 />
               </Grid>
             </Grid>

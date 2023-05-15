@@ -21,24 +21,40 @@ function Challenges() {
         // representative: { value: null, matchMode: FilterMatchMode.IN },
         // status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
     });
-
       useEffect(() => {
-        fetch('http://localhost:3001/api/challenges/search', {
+        fetch('http://localhost:5000/api/challenges/search', {
           method: 'GET',
           headers: {
-            // 'Content-Type': 'application/json',
-            // 'Access-Control-Allow-Origin': '*'
+            'Content-Type': 'application/json',
           },
-        //   body: JSON.stringify(inputs)
-  
         })
         .then(response => response.json())
         .then(dataBack => {
+            // setPlayerList(dataBack.filter(localStorage.getItem("user")))
             setPlayerList(dataBack)
-        //   localStorage.setItem('user', JSON.stringify(dataBack));
-        //   navigate('/');
-        console.log(dataBack)
-        console.log(JSON.stringify(dataBack))
+
+            const asArray = Object.entries(dataBack);
+            console.log(asArray)
+
+            const filtered = asArray.filter((user) => {
+              console.log(localStorage.getItem("user") === user)
+              console.log(user)
+              return true;
+            });
+            console.log(filtered)
+
+
+            // Convert the key/value array back to an object:
+            // `{ name: 'Luke Skywalker', title: 'Jedi Knight' }`
+
+
+            // const justStrings = Object.fromEntries(filtered);
+
+
+
+            // let filteredPlayerList = [...dataBack].filter(localStorage.getItem("user"))
+            // console.log(dataBack)
+            // console.log(filteredPlayerList)
         })
         .catch(error => {
           console.error(error);
@@ -76,7 +92,7 @@ function Challenges() {
 
   return (
     <div>
-      <p>Recherche un joueur pour lui lancer un duel :</p>
+      <p>Search and select a player to start a challenge :</p>
 
       <div className="card">
             {/* <Toast ref={toast} />

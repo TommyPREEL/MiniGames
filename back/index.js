@@ -5,14 +5,17 @@ let challengesRouter = require('./router/challengesRouter');
 let tournamentsRouter = require('./router/tournamentsRouter');
 let usersRouter = require('./router/usersRouter');
 let notificationsRouter = require('./router/notificationsRouter');
+const cors = require("cors");
 
+// Cors header settings
+app.use(cors());
 
 // app.set("view engine", "ejs");
 
 
-// let session = require('express-session')
+let session = require('express-session')
 
-// app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}))
+app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}))
 
 // app.get('/', function(req, res) {
 //   res.render('home');
@@ -27,7 +30,6 @@ app.use('/api/challenges', challengesRouter)
 app.use('/api/tournaments', tournamentsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/notifications', notificationsRouter)
-
 
 
 

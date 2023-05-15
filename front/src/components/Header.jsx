@@ -31,7 +31,7 @@ function Header() {
     if (localStorage.getItem("user") === null) {
       settings = ['Log in', 'Sign up'];
     } else {
-      settings = ['My Cart', 'My orders', 'Settings', 'Logout'];
+      settings = ['Notifications', 'Settings', 'Logout'];
     }
   });
 
@@ -61,8 +61,8 @@ function Header() {
       case 'Challenges':
           navigate('/challenges');
           break;
-      case 'Tournament':
-          navigate('/tournament');
+      case 'Tournaments':
+          navigate('/tournaments');
           break;
       case 'Notifications':
           navigate('/notifications');

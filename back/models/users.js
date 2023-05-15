@@ -26,8 +26,8 @@ function getUserById(id){
 
 function createUser(user){
     return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO Users (lastname, firstname, email, address, password, is_admin) VALUES (?,?,?,?,?,?)`;
-        db.run(sql, [user.lastname, user.firstname, user.email, user.address, user.password, user.is_admin], (err) => {
+        const sql = `INSERT INTO Users (email, username, password, is_admin) VALUES (?,?,?,?)`;
+        db.run(sql, [user.email, user.username, user.password, user.is_admin], (err) => {
             if (err) {
                 throw err;
             }
@@ -37,34 +37,34 @@ function createUser(user){
     })
 }
 
-function updateUser(user){
-    return new Promise((resolve, reject) => {
-        const sql = `UPDATE Users SET lastname =?, firstname=?, password =?, address= ? WHERE id =?`;
-        db.run(sql, [user.lastname, user.firstname, user.password , user.address, user.id], (err) => {
-            if (err) {
-                throw err;
-            }
-            resolve({message: `User ${user.firstname} updated`});
-        })
-    })
-}
+// function updateUser(user){
+//     return new Promise((resolve, reject) => {
+//         const sql = `UPDATE Users SET lastname =?, firstname=?, password =?, address= ? WHERE id =?`;
+//         db.run(sql, [user.lastname, user.firstname, user.password , user.address, user.id], (err) => {
+//             if (err) {
+//                 throw err;
+//             }
+//             resolve({message: `User ${user.firstname} updated`});
+//         })
+//     })
+// }
 
-function deleteUserById(id){
-    return new Promise((resolve, reject) => {
-        const sql = `DELETE FROM Users WHERE id =?`;
-        db.run(sql, [id], (err, rows) => {
-            if (err) {
-                throw err;
-            }
-            resolve({message: `User deleted`});
-        })
-    })
-}
+// function deleteUserById(id){
+//     return new Promise((resolve, reject) => {
+//         const sql = `DELETE FROM Users WHERE id =?`;
+//         db.run(sql, [id], (err, rows) => {
+//             if (err) {
+//                 throw err;
+//             }
+//             resolve({message: `User deleted`});
+//         })
+//     })
+// }
 
-function connection(login, password){
+function connection(username, password){
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM Users WHERE email =? AND password =?`;
-        db.get(sql, [login, password], (err, row) => {
+        const sql = `SELECT * FROM Users WHERE username =? AND password =?`;
+        db.get(sql, [username, password], (err, row) => {
             if (err) {
                 throw err;
             }
@@ -73,11 +73,30 @@ function connection(login, password){
     })
 }
 
+function checkUserExists(email, username){
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT * FROM Users WHERE email = ? OR username = ?`;
+        db.get(sql, [email, username], (err, row) => {
+            if (err) {
+                throw err;
+            }
+            let exist = null
+            if(typeof(row) === 'undefined') {
+                exist = false;
+            }else{
+                exist = true;
+            }
+            resolve(exist);
+        })
+    })
+};
+
 module.exports = {
     getAllUsers,
     getUserById,
     createUser,
-    updateUser,
-    deleteUserById,
+    // updateUser,
+    // deleteUserById,
     connection,
+    checkUserExists
 }

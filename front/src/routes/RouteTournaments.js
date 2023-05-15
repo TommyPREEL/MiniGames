@@ -1,18 +1,18 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
-import Tournament from '../pages/Tournament';
+import Tournaments from '../pages/Tournaments';
 import ErrorPage from '../pages/ErrorPage';
       
-function RouteTournament() {
+function RouteTournaments() {
   return (
     <>
        <Routes>
-        <Route path="/" element={<Tournament/>} />
+        <Route path="/" element={<Tournaments/>} />
         <Route path="*" element={<ErrorPage/>} />
        </Routes>
     </>
   );
 }
 
-export default RouteTournament;
+export default RouteTournaments;
