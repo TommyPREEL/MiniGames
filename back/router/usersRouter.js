@@ -30,7 +30,7 @@ usersRouter.post('/register', function(req, res) {
                         req.session.user = userData;
                         res.json(userData)
                     })
-                    res.json(message.message);
+                    // res.json(message.message);
                 }
             })
         }else{

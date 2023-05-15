@@ -36,12 +36,19 @@ function Challenges() {
             const asArray = Object.entries(dataBack);
             console.log(asArray)
 
-            const filtered = asArray.filter((user) => {
-              console.log(localStorage.getItem("user") === user)
-              console.log(user)
-              return true;
-            });
-            console.log(filtered)
+            asArray.filter(() => ! localStorage.getItem("user"));
+            console.log(asArray)
+
+            asArray.forEach((player) => {
+              console.log(player)
+            })
+            console.log(localStorage.getItem("user"));
+            // const filtered = asArray.filter((user) => {
+            //   console.log(localStorage.getItem("user") === user)
+            //   console.log(user)
+            //   return true;
+            // });
+            // console.log(filtered)
 
 
             // Convert the key/value array back to an object:
