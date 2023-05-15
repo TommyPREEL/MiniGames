@@ -49,9 +49,6 @@ function Challenges() {
         });
     }, []);
 
-
-
-
       const [selectedPlayer, setSelectedPlayer] = useState(null);
       const toast = useRef(null);
 
@@ -76,6 +73,84 @@ function Challenges() {
     };
 
     const header = renderHeader();
+
+    const onRowSelect = (event) => {
+      setSelectedUser(event.data)
+      setSelectedChallenge(null)
+      setDialog(true)
+  };
+  // Cancel button
+  function handleClickNo(){
+      setDialog(false);
+      setSelectedChallenge(null)
+      setSelectedUser(null)
+  }
+
+  // Save button
+  const handleClickYes = () =>{
+      if(!selectedChallenge){
+          toast.current.show({severity:'error', summary: 'Error', detail:'Select a challenge', life: 3000});
+      }else{
+          let inputs = {
+            challenger: "",
+            challenged: "",
+            challenge: selectedChallenge
+          }
+          fetch(`http://localhost:5000/api/challenges/start`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(inputs)
+          })
+          .then(response => response.json())
+          .then(dataBack => {
+              setDialog(false);
+              if(dataBack.message === 'Order updated') {
+                  setDialog(false)
+                  setUpdate(!update)
+                  setSelectedOrder(emptyOrder)
+              }
+          })
+          .catch(error => {
+            console.error(error);
+          });
+      }
+  }
+
+  // Footer dialog
+  const dialogFooter = (
+      <React.Fragment>
+          <Button label="Cancel" icon="pi pi-times" outlined onClick={handleClickNo} className="p-button-text"/>
+          <Button label="Save" icon="pi pi-check" onClick={handleClickYes} autoFocus/>
+      </React.Fragment>
+  );
+
+return (
+  <div>
+      <Toast ref={toast} />
+      <Dialog header="Update the order status" visible={dialog} style={{ width: '50vw' }} onHide={handleClickNo} footer={dialogFooter}>
+              <div>
+                  <div className="flex-auto">
+                      <label htmlFor="username" className="font-bold block mb-2">Username</label>
+                      <InputText id="username" defaultValue={selectedOrder.username} disabled/>
+                  </div>
+                  <div className="flex-auto">
+                      <label htmlFor="orders_date" className="font-bold block mb-2">Orders Date</label>
+                      <InputText id="orders_date" defaultValue={selectedOrder.orders_date} disabled/>
+                  </div>
+                  <div className="flex-auto">
+                      <label htmlFor="price" className="font-bold block mb-2">Total Price</label>
+                      <InputNumber inputId="price" value={selectedOrder.total_price} mode="currency" currency="USD" locale="en-US" disabled/>
+                  </div>
+                  <div className="flex-auto">
+                  <label htmlFor="status" className="font-bold block mb-2">Status</label>
+                      <Dropdown value={tempStatus} onChange={(e) => setTempStatus(e.value)} options={statuses}
+                      placeholder="Select a Status" className="w-full md:w-14rem" />
+                  </div>
+              </div>
+          </Dialog>
+
 
   return (
     <div>
