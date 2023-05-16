@@ -2,11 +2,18 @@ let express = require('express');
 let challengesRouter = express.Router();
 
 const { getAllUsers } = require('../models/users.js')
+const { getAllChallenges } = require('../models/challenges.js')
 
-challengesRouter.get('/search', function(req, res) {
+challengesRouter.get('/players', function(req, res) {
     getAllUsers().then(users => {
       res.json(users)
     })
+});
+
+challengesRouter.get('/list', function(req, res) {
+  getAllChallenges().then(challenges => {
+    res.json(challenges)
+  })
 });
 
 // challengesRouter.get('/details/:id', function(req, res) {

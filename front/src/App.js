@@ -1,17 +1,18 @@
 // import logo from './logo.svg';
 import './App.css';
 import RoutesIndex from './routes/index';
-import ProjectContext from './context/ProjectContext';
+import { lightTheme, ProjectContext } from './context/ProjectContext';
 import Header from './components/Header';
 import React, { useState } from 'react';
 
 function App() {
 
+  const [theme, setTheme] = React.useState(lightTheme);
   const [user, setUser] = useState(null);
 
   return (
-    <div className="App">
-      <ProjectContext.Provider value={{user, setUser}}>
+    <div className="App" style={theme}>
+      <ProjectContext.Provider value={{user, setUser, theme, setTheme}}>
         <Header />
         <RoutesIndex />
       </ProjectContext.Provider>

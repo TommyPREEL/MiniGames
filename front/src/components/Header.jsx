@@ -13,16 +13,21 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-
+import { Badge } from 'primereact/badge';
 
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { darkTheme, lightTheme, ProjectContext } from '../context/ProjectContext';
 
-let pages = ['Challenges', 'Tournament'];
+let pages = ['Challenges', 'Tournaments'];
 let settings = ['Log in', 'Sign up'];
 
 
 function Header() {
-  // const {user, setUser} = React.useContext(ProjectContext);
+  const {theme, setTheme} = React.useContext(ProjectContext);
+  const toggleTheme = () => {
+    setTheme(theme === lightTheme ? darkTheme : lightTheme);
+    console.log(theme)
+  };
   const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
@@ -38,6 +43,7 @@ function Header() {
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
+
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -45,13 +51,10 @@ function Header() {
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
-  
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
-
-  
 
   function handleClickPage(page){
     switch(page){
@@ -84,7 +87,7 @@ function Header() {
           navigate('/settings');
           break;
         case 'Logout':
-          fetch('http://localhost:5000/api/users/logout', {
+          fetch('http://192.168.160.120:5000/api/users/logout', {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json'
@@ -197,12 +200,16 @@ function Header() {
               </Button>
             ))}
           </Box>
+          {/* <button onClick={toggleTheme}>Toggle Theme</button> */}
           {admin}
           {welcome}
           <Box sx={{ flexGrow: 0 }}>
-          <IconButton onClick={() => handleClickPage("Notifications")} sx={{ p: 0 }} style={{marginLeft:10}}>
-          <i className="pi pi-bell"></i>
-          </IconButton>
+            <div style={{cursor: 'pointer'}} className="header-notifications-block" onClick={() => handleClickPage("Notifications")}>
+              <IconButton sx={{ p: 0 }} style={{marginLeft:10}}>
+                <i className="pi pi-bell"></i>
+              </IconButton>
+              <Badge severity="danger" value="2" style={{position: 'relative', left: -10, top: -10}}/>
+            </div>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <AccountCircle />

@@ -36,3 +36,7 @@
     transform: rotate(360deg);
   }
 }
+
+.css-2uchni {
+  display: flex;
+}

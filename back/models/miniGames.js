@@ -1,8 +1,8 @@
 const db = require("./_bdd.js");
 
-function getAllChallenges(){
+function getAllMiniGames(){
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM Challenges`;
+        const sql = `SELECT * FROM Minigames`;
         db.all(sql, [], (err, rows) => {
             if (err) {
                 throw err;
@@ -13,5 +13,5 @@ function getAllChallenges(){
 }
 
 module.exports = {
-    getAllChallenges
+    getAllMiniGames
 }

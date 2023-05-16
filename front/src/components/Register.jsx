@@ -47,7 +47,7 @@ function Register() {
         username: data.get('username'),
         password: data.get('password'),
       }
-    fetch('http://localhost:5000/api/users/register', {
+    fetch('http://192.168.160.120:5000/api/users/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
