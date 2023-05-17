@@ -66,7 +66,7 @@ function Login() {
         .then((response) => response.json())
         .then((dataBack) => {
           localStorage.setItem('user', JSON.stringify(dataBack));
-          navigate('/');
+          navigate('/home');
         })
         .catch((error) => {
           console.error(error);
