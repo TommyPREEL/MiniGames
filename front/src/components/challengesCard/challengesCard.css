@@ -1,4 +1,6 @@
-.card.selected {
-    background-color: blue;
-    color: white;
-  }
+.selected-card {
+  background-color: lightblue;
+  color: white;
+}
+.normal-card {
+}

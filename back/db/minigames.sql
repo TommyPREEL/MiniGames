@@ -9,11 +9,11 @@ CREATE TABLE Users(
    UNIQUE(username)
 );
 
-CREATE TABLE Minigames(
-   id_minigames INTEGER,
+CREATE TABLE MiniGames(
+   id_mini_games INTEGER,
    label TEXT,
    description TEXT,
-   PRIMARY KEY(id_minigames)
+   PRIMARY KEY(id_mini_games)
 );
 
 CREATE TABLE Tournaments(
@@ -26,40 +26,42 @@ CREATE TABLE Tournaments(
 );
 
 CREATE TABLE Feedbacks(
-   id INTEGER,
+   id_feedbacks INTEGER,
    description TEXT,
    id_users INTEGER NOT NULL,
-   PRIMARY KEY(id),
+   PRIMARY KEY(id_feedbacks),
    FOREIGN KEY(id_users) REFERENCES Users(id_users)
 );
 
-CREATE TABLE Users_minigames(
-   id_users INTEGER,
-   id_minigames INTEGER,
-   score INTEGER,
-   PRIMARY KEY(id_users, id_minigames),
-   FOREIGN KEY(id_users) REFERENCES Users(id_users),
-   FOREIGN KEY(id_minigames) REFERENCES Minigames(id_minigames)
+CREATE TABLE Challenges(
+   id_challenges INTEGER,
+   status TEXT,
+   challenges_date NUMERIC NOT NULL,
+   id_users_challenger INTEGER,
+   id_mini_games INTEGER,
+   id_users_challenged INTEGER,
+   PRIMARY KEY(id_challenges),
+   FOREIGN KEY(id_users_challenger) REFERENCES Users(id_users),
+   FOREIGN KEY(id_mini_games) REFERENCES MiniGames(id_mini_games),
+   FOREIGN KEY(id_users_challenged) REFERENCES Users(id_users)
 );
 
-CREATE TABLE Users_minigames_tournaments(
+CREATE TABLE Users_mini_games(
    id_users INTEGER,
-   id_minigames INTEGER,
+   id_mini_games INTEGER,
+   score INTEGER,
+   PRIMARY KEY(id_users, id_mini_games),
+   FOREIGN KEY(id_users) REFERENCES Users(id_users),
+   FOREIGN KEY(id_mini_games) REFERENCES MiniGames(id_mini_games)
+);
+
+CREATE TABLE Users_mini_games_tournaments(
+   id_users INTEGER,
+   id_mini_games INTEGER,
    id_tournaments INTEGER,
    score INTEGER,
-   PRIMARY KEY(id_users, id_minigames, id_tournaments),
+   PRIMARY KEY(id_users, id_mini_games, id_tournaments),
    FOREIGN KEY(id_users) REFERENCES Users(id_users),
-   FOREIGN KEY(id_minigames) REFERENCES Minigames(id_minigames),
+   FOREIGN KEY(id_mini_games) REFERENCES MiniGames(id_mini_games),
    FOREIGN KEY(id_tournaments) REFERENCES Tournaments(id_tournaments)
-);
-
-CREATE TABLE Challenges(
-   id_users INTEGER,
-   id_users_1 INTEGER,
-   id_minigames INTEGER,
-   status TEXT,
-   PRIMARY KEY(id_users, id_users_1, id_minigames),
-   FOREIGN KEY(id_users) REFERENCES Users(id_users),
-   FOREIGN KEY(id_users_1) REFERENCES Users(id_users),
-   FOREIGN KEY(id_minigames) REFERENCES Minigames(id_minigames)
 );

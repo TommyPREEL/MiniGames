@@ -12,12 +12,17 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useNavigate, Navigate } from'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { Toast } from 'primereact/toast';
 
 function Copyright(props) {
   return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      align="center"
+      {...props}
+    >
       {'Copyright © '}
       <Link color="inherit" href="https://mui.com/">
         Tommy PREEL
@@ -31,7 +36,6 @@ function Copyright(props) {
 const theme = createTheme();
 
 function Register() {
-
   const toast = React.useRef(null);
 
   const navigate = useNavigate();
@@ -39,40 +43,53 @@ function Register() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    if(data.get('email') === '' || data.get('username') === '' || data.get('password') === ''){
-      toast.current.show({severity:'error', summary: 'Error', detail:'Please fill all fields', life: 3000});
-    }else{
-       let inputs = {
+    if (
+      data.get('email') === '' ||
+      data.get('username') === '' ||
+      data.get('password') === ''
+    ) {
+      toast.current.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Please fill all fields',
+        life: 3000,
+      });
+    } else {
+      let inputs = {
         email: data.get('email'),
         username: data.get('username'),
         password: data.get('password'),
-      }
-    fetch('http://192.168.160.120:5000/api/users/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(inputs)
-    })
-    .then(response => response.json())
-    .then(dataBack => {
-      if(dataBack === "This email/username is already taken"){
-        toast.current.show({severity:'error', summary: 'Error', detail:'This email or username is already taken', life: 3000});
-      }else{
-        localStorage.setItem('user', JSON.stringify(dataBack));
-        navigate('/');
-      }
-    })
-    .catch(error => {
-      console.error(error);
-    });
+      };
+      fetch('http://192.168.160.120:5000/api/users/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(inputs),
+      })
+        .then((response) => response.json())
+        .then((dataBack) => {
+          if (dataBack === 'This email/username is already taken') {
+            toast.current.show({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'This email or username is already taken',
+              life: 3000,
+            });
+          } else {
+            localStorage.setItem('user', JSON.stringify(dataBack));
+            navigate('/home');
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
   };
 
   const access = () => {
-    if(localStorage.getItem('user'))
-      return <Navigate to='/'></Navigate>
-  }
+    if (localStorage.getItem('user')) return <Navigate to="/"></Navigate>;
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -94,7 +111,12 @@ function Register() {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Box
+            component="form"
+            noValidate
+            onSubmit={handleSubmit}
+            sx={{ mt: 3 }}
+          >
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
@@ -138,7 +160,7 @@ function Register() {
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="/users/connect" variant="body2">
+                <Link href="/" variant="body2">
                   Already have an account? Sign in
                 </Link>
               </Grid>

@@ -15,25 +15,28 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { Badge } from 'primereact/badge';
 
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
-import { darkTheme, lightTheme, ProjectContext } from '../context/ProjectContext';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import {
+  darkTheme,
+  lightTheme,
+  ProjectContext,
+} from '../context/ProjectContext';
 
 let pages = ['Challenges', 'Tournaments'];
 let settings = ['Log in', 'Sign up'];
 
-
 function Header() {
-  const {theme, setTheme} = React.useContext(ProjectContext);
+  const { theme, setTheme } = React.useContext(ProjectContext);
   const toggleTheme = () => {
     setTheme(theme === lightTheme ? darkTheme : lightTheme);
-    console.log(theme)
+    console.log(theme);
   };
   const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
   React.useEffect(() => {
-    if (localStorage.getItem("user") === null) {
+    if (localStorage.getItem('user') === null) {
       settings = ['Log in', 'Sign up'];
     } else {
       settings = ['Notifications', 'Settings', 'Logout'];
@@ -56,62 +59,80 @@ function Header() {
     setAnchorElUser(null);
   };
 
-  function handleClickPage(page){
-    switch(page){
+  function handleClickPage(page) {
+    switch (page) {
       case 'Home':
-          navigate('/');
-          break;
+        navigate('/');
+        break;
       case 'Challenges':
-          navigate('/challenges');
-          break;
+        navigate('/challenges');
+        break;
       case 'Tournaments':
-          navigate('/tournaments');
-          break;
+        navigate('/tournaments');
+        break;
       case 'Notifications':
-          navigate('/notifications');
-          break;
+        navigate('/notifications');
+        break;
       default:
-          navigate('/errorPage');
-  }
-  };
-
-  function handleActionSelectedOnUser(setting){
-    switch(setting){
-        case 'Log in':
-            navigate('/users/connect');
-            break;
-        case 'Sign up':
-            navigate('/users/register');
-            break;
-        case 'Settings':
-          navigate('/settings');
-          break;
-        case 'Logout':
-          fetch('http://192.168.160.120:5000/api/users/logout', {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          })
-          localStorage.removeItem("user");
-          navigate('/users/connect');
-          break;
-        default:
-          navigate('/errorPage');
+        navigate('/errorPage');
     }
-  };
-  
-  function handleClickAdmin(){
+  }
+
+  function handleActionSelectedOnUser(setting) {
+    switch (setting) {
+      // case 'Log in':
+      //   navigate('/users/connect');
+      //   break;
+      // case 'Sign up':
+      //   navigate('/users/register');
+      //   break;
+      case 'Settings':
+        navigate('/settings');
+        break;
+      case 'Logout':
+        fetch('http://192.168.160.120:5000/api/users/logout', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        localStorage.removeItem('user');
+        navigate('/');
+        break;
+      default:
+        navigate('/errorPage');
+    }
+  }
+
+  function handleClickAdmin() {
     navigate('/admin');
   }
 
   let welcome;
   let admin;
-    if(localStorage.getItem("user") !== null){
-      if(JSON.parse(localStorage.getItem("user")).is_admin === 1){
-        admin = <div onClick={handleClickAdmin} style={{marginRight:10, cursor:'pointer', backgroundColor:'white', color:"#1976d2", padding:10, borderRadius:'20px'}}>Admin Dashboard</div>;
-      }
-    welcome = <div style={{marginRight:10}}>{JSON.parse(localStorage.getItem("user")).username}</div>;
+  if (localStorage.getItem('user') !== null) {
+    if (JSON.parse(localStorage.getItem('user')).is_admin === 1) {
+      admin = (
+        <div
+          onClick={handleClickAdmin}
+          style={{
+            marginRight: 10,
+            cursor: 'pointer',
+            backgroundColor: 'white',
+            color: '#1976d2',
+            padding: 10,
+            borderRadius: '20px',
+          }}
+        >
+          Admin Dashboard
+        </div>
+      );
+    }
+    welcome = (
+      <div style={{ marginRight: 10 }}>
+        {JSON.parse(localStorage.getItem('user')).username}
+      </div>
+    );
   }
 
   return (
@@ -132,8 +153,7 @@ function Header() {
               color: 'inherit',
               textDecoration: 'none',
             }}
-          >
-          </Typography>
+          ></Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
             <IconButton
               size="large"
@@ -185,14 +205,13 @@ function Header() {
               color: 'inherit',
               textDecoration: 'none',
             }}
-          >
-          </Typography>
+          ></Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
               <Button
                 onClick={() => handleClickPage(page)}
                 key={page}
-                style={{fontWeight:'bold'}}
+                style={{ fontWeight: 'bold' }}
                 // onClick={handleCloseNavMenu}
                 sx={{ my: 2, color: 'white', display: 'block' }}
               >
@@ -204,11 +223,19 @@ function Header() {
           {admin}
           {welcome}
           <Box sx={{ flexGrow: 0 }}>
-            <div style={{cursor: 'pointer'}} className="header-notifications-block" onClick={() => handleClickPage("Notifications")}>
-              <IconButton sx={{ p: 0 }} style={{marginLeft:10}}>
+            <div
+              style={{ cursor: 'pointer' }}
+              className="header-notifications-block"
+              onClick={() => handleClickPage('Notifications')}
+            >
+              <IconButton sx={{ p: 0 }} style={{ marginLeft: 10 }}>
                 <i className="pi pi-bell"></i>
               </IconButton>
-              <Badge severity="danger" value="2" style={{position: 'relative', left: -10, top: -10}}/>
+              <Badge
+                severity="danger"
+                value="2"
+                style={{ position: 'relative', left: -10, top: -10 }}
+              />
             </div>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -233,7 +260,12 @@ function Header() {
             >
               {settings.map((setting) => (
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center" onClick={() => handleActionSelectedOnUser(setting)}>{setting}</Typography>
+                  <Typography
+                    textAlign="center"
+                    onClick={() => handleActionSelectedOnUser(setting)}
+                  >
+                    {setting}
+                  </Typography>
                 </MenuItem>
               ))}
             </Menu>

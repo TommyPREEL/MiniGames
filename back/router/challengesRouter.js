@@ -2,7 +2,7 @@ let express = require('express');
 let challengesRouter = express.Router();
 
 const { getAllUsers } = require('../models/users.js')
-const { getAllChallenges } = require('../models/challenges.js')
+const { getAllChallenges, startChallenge, challengesListToAccept } = require('../models/challenges.js')
 
 challengesRouter.get('/players', function(req, res) {
     getAllUsers().then(users => {
@@ -13,6 +13,18 @@ challengesRouter.get('/players', function(req, res) {
 challengesRouter.get('/list', function(req, res) {
   getAllChallenges().then(challenges => {
     res.json(challenges)
+  })
+});
+
+challengesRouter.post('/start', function(req, res) {
+  startChallenge(req.body).then(message => {
+    res.json({message: message})
+  })
+});
+
+challengesRouter.get('/list_to_accept', function(req, res) {
+  challengesListToAccept(req.body).then(rows => {
+    res.json(rows)
   })
 });
 
