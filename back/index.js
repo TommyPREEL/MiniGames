@@ -37,5 +37,5 @@ app.use('/api/notifications', notificationsRouter)
 
 /* Open the server */
 app.listen(5000, () => {
-  console.log("Server start (http://192.168.160.120:5000/) !");
+  console.log("Server start (http://192.168.91.120:5000/) !");
 });

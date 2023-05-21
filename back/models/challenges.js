@@ -41,7 +41,19 @@ function startChallenge(challenge){
 function challengesListToAccept(id_user){
     return new Promise((resolve, reject) => {
         const sql = `SELECT * from challenges JOIN Users ON id_users = id_users_challenger JOIN Users ON id_users = id_users_challenged WHERE id_users_challenged = ? AND status = ?`;
-        db.all(sql, [id_users, status.WAITING], (err, rows) => {
+        db.all(sql, [id_user, status.WAITING], (err, rows) => {
+            if (err) {
+                throw err;
+            }
+            resolve(rows);
+        })
+    })
+}
+
+function challengesListSent(id_user){
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT * from challenges JOIN Users ON id_users = id_users_challenger JOIN Users ON id_users = id_users_challenged WHERE id_users_challenged = ? AND status = ?`;
+        db.all(sql, [id_user, status.WAITING], (err, rows) => {
             if (err) {
                 throw err;
             }

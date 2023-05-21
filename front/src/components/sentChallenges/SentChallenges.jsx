@@ -13,14 +13,14 @@ import { Tag } from 'primereact/tag';
 
 import ChallengesCard from '../challengesCard/ChallengesCard';
 
-function StartChallenge() {
-  const [player, setPlayer] = useState('');
-  const [playerList, setPlayerList] = useState([]);
-  const [selectedPlayer, setSelectedPlayer] = useState(null);
+function SentChallenge() {
+  //   const [playerList, setPlayerList] = useState([]);
+  //   const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [selectedChallenge, setSelectedChallenge] = useState(null);
+
   const toast = useRef(null);
-  // const emptyChallengesList = {
-  // }
-  const [challengesList, setChallengesList] = useState([{}]);
+
+  const [challengesList, setChallengesList] = useState([]);
 
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -30,7 +30,7 @@ function StartChallenge() {
     // status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
   });
   useEffect(() => {
-    fetch('http://192.168.91.120:5000/api/challenges/players', {
+    fetch('http://192.168.91.120:5000/api/challenges/sent', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -48,26 +48,7 @@ function StartChallenge() {
             filteredPlayerList.push(user[1]);
           }
         });
-        setPlayerList(filteredPlayerList);
-      })
-      .catch((error) => {
-        console.error(error);
-        //   toast.current.show({severity:'error', summary: 'Error', detail:'Bad credentials', life: 3000});
-      });
-  }, []);
-
-  useEffect(() => {
-    fetch('http://192.168.91.120:5000/api/miniGames', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((response) => response.json())
-      .then((dataBack) => {
-        // const dataBackArray = Object.entries(dataBack);
-        setChallengesList(dataBack);
-        // setChallengesList(dataBack)
+        setChallengesList(filteredPlayerList);
       })
       .catch((error) => {
         console.error(error);
@@ -102,120 +83,100 @@ function StartChallenge() {
 
   const header = renderHeader();
   const [dialog, setDialog] = useState(false);
-  const [selectedChallenge, setSelectedChallenge] = useState(null);
 
   const onRowSelect = (event) => {
-    setSelectedPlayer(event.value);
+    setSelectedChallenge(event.value);
     setDialog(true);
   };
   // Cancel button
-  function handleClickCancel() {
-    setDialog(false);
-    setSelectedChallenge(null);
-    setSelectedPlayer(null);
-  }
+  //   function handleClickCancel() {
+  //     setDialog(false);
+  //     setSelectedChallenge(null);
+  //     setSelectedPlayer(null);
+  //   }
 
   // Save button
-  const handleClickStart = () => {
-    if (!selectedChallenge) {
-      toast.current.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Select a challenge',
-        life: 3000,
-      });
-    } else {
-      let inputs = {
-        challenger: JSON.parse(localStorage.getItem('user')),
-        challenged: selectedPlayer,
-        challenge: selectedChallenge,
-      };
-      console.log(inputs);
-      fetch(`http://192.168.91.120:5000/api/challenges/start`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(inputs),
-      })
-        .then((response) => response.json())
-        .then((dataBack) => {
-          setDialog(false);
-          if (dataBack.message === 'PASSED') {
-            toast.current.show({
-              severity: 'success',
-              summary: 'Success',
-              detail: 'Challenge sent !',
-              life: 3000,
-            });
-            handleClickCancel();
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
-  };
+  //   const handleClickStart = () => {
+  //     if (!selectedChallenge) {
+  //       toast.current.show({
+  //         severity: 'error',
+  //         summary: 'Error',
+  //         detail: 'Select a challenge',
+  //         life: 3000,
+  //       });
+  //     } else {
+  //       let inputs = {
+  //         challenger: JSON.parse(localStorage.getItem('user')),
+  //         challenged: selectedPlayer,
+  //         challenge: selectedChallenge,
+  //       };
+  //       console.log(inputs);
+  //       fetch(`http://192.168.91.120:5000/api/challenges/start`, {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify(inputs),
+  //       })
+  //         .then((response) => response.json())
+  //         .then((dataBack) => {
+  //           setDialog(false);
+  //           if (dataBack.message === 'PASSED') {
+  //             toast.current.show({
+  //               severity: 'success',
+  //               summary: 'Success',
+  //               detail: 'Challenge sent !',
+  //               life: 3000,
+  //             });
+  //             handleClickCancel();
+  //           }
+  //         })
+  //         .catch((error) => {
+  //           console.error(error);
+  //         });
+  //     }
+  //   };
 
   // Footer dialog
-  const dialogFooter = (
-    <React.Fragment>
-      <Button
-        label="Go back"
-        icon="pi pi-times"
-        outlined
-        onClick={handleClickCancel}
-        className="p-button-text"
-      />
-      <Button
-        label="Let's start !"
-        icon="pi pi-check"
-        onClick={handleClickStart}
-        autoFocus
-      />
-    </React.Fragment>
-  );
+  //   const dialogFooter = (
+  //     <React.Fragment>
+  //       <Button
+  //         label="Go back"
+  //         icon="pi pi-times"
+  //         outlined
+  //         onClick={handleClickCancel}
+  //         className="p-button-text"
+  //       />
+  //       <Button
+  //         label="Let's start !"
+  //         icon="pi pi-check"
+  //         onClick={handleClickStart}
+  //         autoFocus
+  //       />
+  //     </React.Fragment>
+  //   );
 
-  const handleCardClick = (id) => {
-    setChallengesList((prevList) =>
-      prevList.map((challenge) => {
-        if (challenge.id_mini_games === id) {
-          if (selectedChallenge?.id_mini_games === challenge.id_mini_games) {
-            setSelectedChallenge(null);
-          } else {
-            setSelectedChallenge(challenge);
-          }
-          return { ...challenge, isSelected: !challenge.isSelected };
-        } else {
-          return { ...challenge, isSelected: false };
-        }
-      })
-    );
-  };
+  //   const handleCardClick = (id) => {
+  //     setChallengesList((prevList) =>
+  //       prevList.map((challenge) => {
+  //         if (challenge.id_mini_games === id) {
+  //           if (selectedChallenge?.id_mini_games === challenge.id_mini_games) {
+  //             setSelectedChallenge(null);
+  //           } else {
+  //             setSelectedChallenge(challenge);
+  //           }
+  //           return { ...challenge, isSelected: !challenge.isSelected };
+  //         } else {
+  //           return { ...challenge, isSelected: false };
+  //         }
+  //       })
+  //     );
+  //   };
 
   return (
     <div>
-      <p>Search and select a player to start a challenge :</p>
+      <p>Here, you can find the challenges that you created</p>
       <Toast ref={toast} />
-      <Dialog
-        header="Click to select a challenge"
-        visible={dialog}
-        style={{ width: '50vw' }}
-        onHide={handleClickCancel}
-        footer={dialogFooter}
-      >
-        <div>
-          {challengesList.map(function (challenge) {
-            return (
-              <ChallengesCard
-                key={challenge.id_mini_games}
-                props={challenge}
-                handleClick={handleCardClick}
-              />
-            );
-          })}
-        </div>
-      </Dialog>
       <div className="card">
         <Toast ref={toast} />
         {/* <DataTable value={playerList} selectionMode="single" selection={selectedPlayer} onSelectionChange={(e) => setSelectedPlayer(e.value)} dataKey="id"
@@ -224,25 +185,31 @@ function StartChallenge() {
             </DataTable> */}
 
         <DataTable
-          value={playerList}
+          value={challengesList}
           paginator
           rows={5}
           header={header}
           filters={filters}
           onFilter={(e) => setFilters(e.filters)}
-          selection={selectedPlayer}
+          selection={selectedChallenge}
           onSelectionChange={onRowSelect}
           selectionMode="single"
           dataKey="id"
           stateStorage="session"
           stateKey="dt-state-demo-local"
-          emptyMessage="No player found."
+          emptyMessage="No challenge found."
           tableStyle={{ minWidth: '50rem' }}
           // onRowSelect={(e) => onRowSelect(e)}(e) => setSelectedPlayer(e.value)
         >
           <Column
             field="username"
             header="Username"
+            sortable
+            style={{ width: '25%' }}
+          ></Column>
+          <Column
+            field="miniGame"
+            header="MiniGame"
             sortable
             style={{ width: '25%' }}
           ></Column>
@@ -254,4 +221,4 @@ function StartChallenge() {
     </div>
   );
 }
-export default StartChallenge;
+export default SentChallenge;
