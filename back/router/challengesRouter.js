@@ -29,8 +29,7 @@ challengesRouter.get('/list_to_accept', function(req, res) {
 });
 
 challengesRouter.post('/list_sent', function(req, res) {
-  console.log(req.body.id_users)
-  challengesListSent(req.body.id_users).then(rows => {
+  challengesListSent(req.body.id_user).then(rows => {
     res.json(rows)
   })
 });

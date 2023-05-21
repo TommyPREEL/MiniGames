@@ -16,7 +16,7 @@ import ChallengesCard from '../challengesCard/ChallengesCard';
 function SentChallenge() {
   //   const [playerList, setPlayerList] = useState([]);
   //   const [selectedPlayer, setSelectedPlayer] = useState(null);
-  const [selectedChallenge, setSelectedChallenge] = useState(null);
+  // const [selectedChallenge, setSelectedChallenge] = useState(null);
 
   const toast = useRef(null);
 
@@ -34,7 +34,7 @@ function SentChallenge() {
     let inputs = {
       id_user: JSON.parse(localStorage.getItem('user')).id_users,
     };
-    fetch('http://192.168.91.120:5000/api/challenges/list_sent', {
+    fetch(`http://192.168.1.11:5000/api/challenges/list_sent`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -43,8 +43,9 @@ function SentChallenge() {
     })
       .then((response) => response.json())
       .then((dataBack) => {
-        const dataBackArray = Object.entries(dataBack);
-        setChallengesList(dataBackArray);
+        // const dataBackArray = Object.entries(dataBack);
+        // setChallengesList(dataBackArray);
+        setChallengesList(dataBack);
       })
       .catch((error) => {
         console.error(error);
@@ -78,12 +79,12 @@ function SentChallenge() {
   };
 
   const header = renderHeader();
-  const [dialog, setDialog] = useState(false);
+  // const [dialog, setDialog] = useState(false);
 
-  const onRowSelect = (event) => {
-    setSelectedChallenge(event.value);
-    setDialog(true);
-  };
+  // const onRowSelect = (event) => {
+  //   setSelectedChallenge(event.value);
+  //   setDialog(true);
+  // };
   // Cancel button
   //   function handleClickCancel() {
   //     setDialog(false);
@@ -174,7 +175,7 @@ function SentChallenge() {
       <p>Here, you can find the challenges that you created</p>
       <Toast ref={toast} />
       <div className="card">
-        <Toast ref={toast} />
+        {/* <Toast ref={toast} /> */}
         {/* <DataTable value={playerList} selectionMode="single" selection={selectedPlayer} onSelectionChange={(e) => setSelectedPlayer(e.value)} dataKey="id"
                     onRowSelect={onRowSelect} metaKeySelection={false} tableStyle={{ minWidth: '50rem' }}>
                 <Column field="username" header="Username"></Column>
@@ -187,9 +188,9 @@ function SentChallenge() {
           header={header}
           filters={filters}
           onFilter={(e) => setFilters(e.filters)}
-          selection={selectedChallenge}
-          onSelectionChange={onRowSelect}
-          selectionMode="single"
+          // selection={selectedChallenge}
+          // onSelectionChange={onRowSelect}
+          // selectionMode="single"
           dataKey="id"
           stateStorage="session"
           stateKey="dt-state-demo-local"
@@ -199,13 +200,13 @@ function SentChallenge() {
         >
           <Column
             field="username"
-            header="Username"
+            header="Usernames"
             sortable
             style={{ width: '25%' }}
           ></Column>
           <Column
             field="label"
-            header="MiniGame"
+            header="Mini games"
             sortable
             style={{ width: '25%' }}
           ></Column>
