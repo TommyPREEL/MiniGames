@@ -29,26 +29,22 @@ function SentChallenge() {
     // representative: { value: null, matchMode: FilterMatchMode.IN },
     // status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
   });
+
   useEffect(() => {
-    fetch('http://192.168.91.120:5000/api/challenges/sent', {
-      method: 'GET',
+    let inputs = {
+      id_user: JSON.parse(localStorage.getItem('user')).id_users,
+    };
+    fetch('http://192.168.91.120:5000/api/challenges/list_sent', {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify(inputs),
     })
       .then((response) => response.json())
       .then((dataBack) => {
         const dataBackArray = Object.entries(dataBack);
-        let filteredPlayerList = [];
-        dataBackArray.forEach((user) => {
-          if (
-            user[1].username !==
-            JSON.parse(localStorage.getItem('user')).username
-          ) {
-            filteredPlayerList.push(user[1]);
-          }
-        });
-        setChallengesList(filteredPlayerList);
+        setChallengesList(dataBackArray);
       })
       .catch((error) => {
         console.error(error);
@@ -208,7 +204,7 @@ function SentChallenge() {
             style={{ width: '25%' }}
           ></Column>
           <Column
-            field="miniGame"
+            field="label"
             header="MiniGame"
             sortable
             style={{ width: '25%' }}

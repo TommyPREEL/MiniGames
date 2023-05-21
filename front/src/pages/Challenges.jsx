@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import StartChallenge from '../components/startChallenge/StartChallenge';
+import SentChallenge from '../components/sentChallenges/SentChallenges';
+
 import { TabMenu } from 'primereact/tabmenu';
 
 function Challenges() {
@@ -22,7 +24,7 @@ function Challenges() {
         />
       </div>
       {activeTab === 0 && <StartChallenge></StartChallenge>}
-      {activeTab === 1 && <StartChallenge></StartChallenge>}
+      {activeTab === 1 && <SentChallenge></SentChallenge>}
       {activeTab === 2 && <StartChallenge></StartChallenge>}
       {activeTab === 3 && <StartChallenge></StartChallenge>}
     </div>
