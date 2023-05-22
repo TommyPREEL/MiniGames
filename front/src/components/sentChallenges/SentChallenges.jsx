@@ -200,7 +200,7 @@ function SentChallenge() {
         >
           <Column
             field="username"
-            header="Usernames"
+            header="Challengers"
             sortable
             style={{ width: '25%' }}
           ></Column>

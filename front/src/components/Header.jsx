@@ -25,7 +25,7 @@ import {
 let pages = ['Challenges', 'Tournaments'];
 let settings = ['Log in', 'Sign up'];
 
-function Header() {
+function Header({ onLogout }) {
   const { theme, setTheme } = React.useContext(ProjectContext);
   const toggleTheme = () => {
     setTheme(theme === lightTheme ? darkTheme : lightTheme);
@@ -90,14 +90,7 @@ function Header() {
         navigate('/settings');
         break;
       case 'Logout':
-        fetch(`http://192.168.1.11:5000/api/users/logout`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        localStorage.removeItem('user');
-        navigate('/');
+        onLogout();
         break;
       default:
         navigate('/errorPage');

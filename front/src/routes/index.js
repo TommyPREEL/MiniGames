@@ -1,6 +1,6 @@
 /* import dependencies */
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 
 /* import components*/
 import Header from '../components/Header';
@@ -16,12 +16,12 @@ import RouteAdmin from './RouteAdmin';
 import RouteChallenges from './RouteChallenges';
 import RouteTournaments from './RouteTournaments';
 
-function RoutesIndex() {
+function RoutesIndex({onLogout}) {
   return (
     <>
-    <Header />
+    <Header onLogout={onLogout}></Header>
     <Routes>
-      <Route path="/home" element={<Home/>} />
+      <Route path="/" element={<Home/>} />
       <Route path="/challenges/*" element={<RouteChallenges/>} />
       <Route path="/tournaments/*" element={<RouteTournaments/>} />
       <Route path="/notifications" element={<Notifications/>} />

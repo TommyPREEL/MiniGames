@@ -73,9 +73,58 @@ function challengesListSent(id_user){
     })
 }
 
+function challengesListDone(id_user){
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT id_challenges,
+        Challenges.id_users_challenger,
+        Users2.username,
+        Challenges.id_mini_games,
+        MiniGames.label,
+        Challenges.id_users_challenged
+        FROM Challenges
+        JOIN Users Users1 ON Users1.id_users = Challenges.id_users_challenger
+        JOIN MiniGames ON MiniGames.id_mini_games = Challenges.id_mini_games
+        JOIN Users Users2 ON Users2.id_users = Challenges.id_users_challenged
+        WHERE (Challenges.id_users_challenger = ?
+        OR Challenges.id_users_challenged = ?)
+        AND status = ?`;
+        db.all(sql, [id_user, id_user, status.FINISHED], (err, rows) => {
+            if (err) {
+                throw err;
+            }
+            resolve(rows);
+        })
+    })
+}
+
+function challengesListReceived(id_user){
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT id_challenges,
+        Challenges.id_users_challenger,
+        Users1.username,
+        Challenges.id_mini_games,
+        MiniGames.label,
+        Challenges.id_users_challenged
+        FROM Challenges
+        JOIN Users Users1 ON Users1.id_users = Challenges.id_users_challenger
+        JOIN MiniGames ON MiniGames.id_mini_games = Challenges.id_mini_games
+        JOIN Users Users2 ON Users2.id_users = Challenges.id_users_challenged
+        WHERE Challenges.id_users_challenged = ?
+        AND status = ?`;
+        db.all(sql, [id_user, status.WAITING], (err, rows) => {
+            if (err) {
+                throw err;
+            }
+            resolve(rows);
+        })
+    })
+}
+
 module.exports = {
     getAllChallenges,
     startChallenge,
     challengesListToAccept,
-    challengesListSent
+    challengesListSent,
+    challengesListDone,
+    challengesListReceived
 }

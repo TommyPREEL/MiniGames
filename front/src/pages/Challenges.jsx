@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import StartChallenge from '../components/startChallenge/StartChallenge';
 import SentChallenge from '../components/sentChallenges/SentChallenges';
+import ReceivedChallenge from '../components/receivedChallenges/ReceivedChallenges';
+import DoneChallenge from '../components/doneChallenges/DoneChallenges';
 
 import { TabMenu } from 'primereact/tabmenu';
 
@@ -25,8 +27,8 @@ function Challenges() {
       </div>
       {activeTab === 0 && <StartChallenge></StartChallenge>}
       {activeTab === 1 && <SentChallenge></SentChallenge>}
-      {activeTab === 2 && <StartChallenge></StartChallenge>}
-      {activeTab === 3 && <StartChallenge></StartChallenge>}
+      {activeTab === 2 && <ReceivedChallenge></ReceivedChallenge>}
+      {activeTab === 3 && <DoneChallenge></DoneChallenge>}
     </div>
   );
 }
