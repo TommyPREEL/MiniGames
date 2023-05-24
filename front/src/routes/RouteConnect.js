@@ -5,11 +5,11 @@ import Register from '../components/Register';
 import Login from '../components/Login';
 import ErrorPage from '../pages/ErrorPage';
       
-function RouteConnect() {
+function RouteConnect(onLogin) {
   return (
     <Routes>
-      <Route exact path="/" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/connect" element={<Login onLogin={onLogin}/>} />
+      <Route path="/register" element={<Register onLogin={onLogin}/>} />
       <Route path="*" element={<ErrorPage />} />
     </Routes>
   );

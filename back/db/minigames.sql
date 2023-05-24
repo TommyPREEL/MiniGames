@@ -40,10 +40,12 @@ CREATE TABLE Challenges(
    id_users_challenger INTEGER,
    id_mini_games INTEGER,
    id_users_challenged INTEGER,
+   id_users_winner INTEGER,
    PRIMARY KEY(id_challenges),
    FOREIGN KEY(id_users_challenger) REFERENCES Users(id_users),
    FOREIGN KEY(id_mini_games) REFERENCES MiniGames(id_mini_games),
-   FOREIGN KEY(id_users_challenged) REFERENCES Users(id_users)
+   FOREIGN KEY(id_users_challenged) REFERENCES Users(id_users),
+   FOREIGN KEY(id_users_winner) REFERENCES Users(id_users)
 );
 
 CREATE TABLE Users_mini_games(

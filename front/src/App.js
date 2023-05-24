@@ -22,10 +22,14 @@ function App() {
   localStorage.removeItem('user');
   navigate('/');
 }
+
+  const onLogin = () => {
+    navigate('/home');
+  }
   return (
     <div className="App" style={theme}>
       <ProjectContext.Provider value={{user, setUser, theme, setTheme}}>
-        {(localStorage.getItem('user')) ? <RoutesIndex onLogout={onLogout}/> : <RouteConnect onLogout={onLogout}/>}
+        {(localStorage.getItem('user')) ? <RoutesIndex onLogout={onLogout} onLogin={onLogin}/> : <RouteConnect onLogout={onLogout} onLogin={onLogin}/>}
       </ProjectContext.Provider>
     </div>
   );

@@ -36,7 +36,7 @@ function Copyright(props) {
 
 const theme = createTheme();
 
-function Login() {
+function Login(props) {
   const toast = React.useRef(null);
 
   const navigate = useNavigate();
@@ -66,7 +66,8 @@ function Login() {
         .then((response) => response.json())
         .then((dataBack) => {
           localStorage.setItem('user', JSON.stringify(dataBack));
-          navigate('/home');
+          // navigate('/home');
+          props.onLogin();
         })
         .catch((error) => {
           console.error(error);
