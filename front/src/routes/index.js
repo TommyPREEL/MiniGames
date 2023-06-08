@@ -16,12 +16,12 @@ import RouteAdmin from './RouteAdmin';
 import RouteChallenges from './RouteChallenges';
 import RouteTournaments from './RouteTournaments';
 
-function RoutesIndex(onLogout) {
+function RoutesIndex({onLogout}) {
   return (
     <>
-    <Header onLogout={onLogout}></Header>
+    <Header />
     <Routes>
-      <Route path="/home" element={<Home/>} />
+      <Route path="/" element={<Home/>} />
       <Route path="/challenges/*" element={<RouteChallenges/>} />
       <Route path="/tournaments/*" element={<RouteTournaments/>} />
       <Route path="/notifications" element={<Notifications/>} />

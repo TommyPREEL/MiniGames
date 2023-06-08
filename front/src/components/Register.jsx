@@ -14,6 +14,7 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { Toast } from 'primereact/toast';
+import { ProjectContext } from '../context/ProjectContext';
 
 function Copyright(props) {
   return (
@@ -37,6 +38,8 @@ const theme = createTheme();
 
 function Register() {
   const toast = React.useRef(null);
+
+  const { user, setUser, handleLogin } = React.useContext(ProjectContext);
 
   const navigate = useNavigate();
 
@@ -77,8 +80,9 @@ function Register() {
               life: 3000,
             });
           } else {
-            localStorage.setItem('user', JSON.stringify(dataBack));
-            navigate('/home');
+            // setUser(JSON.stringify(dataBack));
+            handleLogin(JSON.stringify(dataBack));
+            navigate('/');
           }
         })
         .catch((error) => {

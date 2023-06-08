@@ -14,7 +14,6 @@ import AdbIcon from '@mui/icons-material/Adb';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { Badge } from 'primereact/badge';
-
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import {
   darkTheme,
@@ -23,10 +22,12 @@ import {
 } from '../context/ProjectContext';
 
 let pages = ['Challenges', 'Tournaments'];
-let settings = ['Log in', 'Sign up'];
+let settings = ['Notifications', 'Settings', 'Logout'];
 
-function Header({ onLogout }) {
-  const { theme, setTheme } = React.useContext(ProjectContext);
+function Header() {
+  const { theme, setTheme, user, setUser, handleLogout } =
+    React.useContext(ProjectContext);
+
   const toggleTheme = () => {
     setTheme(theme === lightTheme ? darkTheme : lightTheme);
     console.log(theme);
@@ -34,14 +35,10 @@ function Header({ onLogout }) {
   const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-
+  // window.location.reload();
   React.useEffect(() => {
-    if (localStorage.getItem('user') === null) {
-      settings = ['Log in', 'Sign up'];
-    } else {
-      settings = ['Notifications', 'Settings', 'Logout'];
-    }
-  });
+    setUser(JSON.parse(localStorage.getItem('user')));
+  }, []);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -90,7 +87,8 @@ function Header({ onLogout }) {
         navigate('/settings');
         break;
       case 'Logout':
-        onLogout();
+        handleLogout();
+        navigate('/');
         break;
       default:
         navigate('/errorPage');
@@ -103,8 +101,8 @@ function Header({ onLogout }) {
 
   let welcome;
   let admin;
-  if (localStorage.getItem('user') !== null) {
-    if (JSON.parse(localStorage.getItem('user')).is_admin === 1) {
+  if (user) {
+    if (user.is_admin === 1) {
       admin = (
         <div
           onClick={handleClickAdmin}
@@ -123,6 +121,7 @@ function Header({ onLogout }) {
     }
     welcome = (
       <div style={{ marginRight: 10 }}>
+        {/* {JSON.parse(localStorage.getItem('user')).username} */}
         {JSON.parse(localStorage.getItem('user')).username}
       </div>
     );

@@ -14,7 +14,7 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { Toast } from 'primereact/toast';
-// import ProjectContext from '../context/ProjectContext';
+import { ProjectContext } from '../context/ProjectContext';
 
 function Copyright(props) {
   return (
@@ -36,10 +36,14 @@ function Copyright(props) {
 
 const theme = createTheme();
 
-function Login(props) {
+function Login() {
   const toast = React.useRef(null);
 
   const navigate = useNavigate();
+
+  const projectContext = React.useContext(ProjectContext);
+
+  const { setUser, user, handleLogin } = projectContext;
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -65,9 +69,9 @@ function Login(props) {
       })
         .then((response) => response.json())
         .then((dataBack) => {
-          localStorage.setItem('user', JSON.stringify(dataBack));
-          // navigate('/home');
-          props.onLogin();
+          setUser(JSON.stringify(dataBack));
+          handleLogin(JSON.stringify(dataBack));
+          navigate('/');
         })
         .catch((error) => {
           console.error(error);
