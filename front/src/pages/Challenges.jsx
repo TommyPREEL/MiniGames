@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import StartChallenge from '../components/startChallenge/StartChallenge';
-import SentChallenge from '../components/sentChallenges/SentChallenges';
-import ReceivedChallenge from '../components/receivedChallenges/ReceivedChallenges';
-import DoneChallenge from '../components/doneChallenges/DoneChallenges';
+import StartChallenges from '../components/StartChallenges/StartChallenges';
+import SentChallenges from '../components/sentChallenges/SentChallenges';
+import ReceivedChallenges from '../components/receivedChallenges/ReceivedChallenges';
+import DoneChallenges from '../components/doneChallenges/DoneChallenges';
+import AcceptedChallenges from '../components/doneChallenges/AcceptedChallenges';
 
 import { TabMenu } from 'primereact/tabmenu';
 
@@ -13,6 +14,7 @@ function Challenges() {
     { label: 'Start a challenge', icon: 'pi pi-fw pi-home' },
     { label: 'Challenges sent', icon: 'pi pi-fw pi-calendar' },
     { label: 'Challenges received', icon: 'pi pi-fw pi-calendar' },
+    { label: 'Challenges accepted', icon: 'pi pi-fw pi-calendar' },
     { label: 'Challenges done', icon: 'pi pi-fw pi-calendar' },
   ];
 
@@ -25,10 +27,11 @@ function Challenges() {
           onTabChange={(e) => setActiveTab(e.index)}
         />
       </div>
-      {activeTab === 0 && <StartChallenge></StartChallenge>}
-      {activeTab === 1 && <SentChallenge></SentChallenge>}
-      {activeTab === 2 && <ReceivedChallenge></ReceivedChallenge>}
-      {activeTab === 3 && <DoneChallenge></DoneChallenge>}
+      {activeTab === 0 && <StartChallenges></StartChallenges>}
+      {activeTab === 1 && <SentChallenges></SentChallenges>}
+      {activeTab === 2 && <ReceivedChallenges></ReceivedChallenges>}
+      {activeTab === 3 && <AcceptedChallenges></AcceptedChallenges>}
+      {activeTab === 4 && <DoneChallenges></DoneChallenges>}
     </div>
   );
 }

@@ -13,7 +13,7 @@ import { Tag } from 'primereact/tag';
 
 import ChallengesCard from '../challengesCard/ChallengesCard';
 
-function SentChallenge() {
+function SentChallenges() {
   //   const [playerList, setPlayerList] = useState([]);
   //   const [selectedPlayer, setSelectedPlayer] = useState(null);
   // const [selectedChallenge, setSelectedChallenge] = useState(null);
@@ -218,4 +218,4 @@ function SentChallenge() {
     </div>
   );
 }
-export default SentChallenge;
+export default SentChallenges;
