@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import StartChallenges from '../components/StartChallenges/StartChallenges';
+import StartChallenges from '../components/startChallenges/StartChallenges';
 import SentChallenges from '../components/sentChallenges/SentChallenges';
 import ReceivedChallenges from '../components/receivedChallenges/ReceivedChallenges';
 import DoneChallenges from '../components/doneChallenges/DoneChallenges';
-import AcceptedChallenges from '../components/doneChallenges/AcceptedChallenges';
+import AcceptedChallenges from '../components/acceptedChallenges/AcceptedChallenges';
 
 import { TabMenu } from 'primereact/tabmenu';
 

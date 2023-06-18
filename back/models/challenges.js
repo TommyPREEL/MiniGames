@@ -1,7 +1,7 @@
 const db = require("./_bdd.js");
 
 const status = {
-    ACCEPT : "ACCEPT",
+    ACCEPTED : "ACCEPTED",
     WAITING : "WAITING",
     FINISHED : "FINISHED"
 }
@@ -38,14 +38,38 @@ function startChallenge(challenge){
     })
 }
 
+// Function to display the list of the challenges in waiting
 function challengesListToAccept(id_user){
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * from challenges JOIN Users ON id_users = id_users_challenger JOIN Users ON id_users = id_users_challenged WHERE id_users_challenged = ? AND status = ?`;
+        const sql = `SELECT * 
+        FROM challenges 
+        JOIN Users ON id_users = id_users_challenger 
+        JOIN Users ON id_users = id_users_challenged 
+        WHERE id_users_challenged = ? 
+        AND status = ?`;
         db.all(sql, [id_user, status.WAITING], (err, rows) => {
             if (err) {
                 throw err;
             }
             resolve(rows);
+        })
+    })
+}
+
+/* 
+    Function to accept a challenge from the challenge list to accept
+    Change the challenge status to accepted 
+*/
+function challengesAccepted(challenge){
+    return new Promise((resolve, reject) => {
+        const sql = `UPDATE Challenges 
+        SET status = ? 
+        WHERE id_challenges = ?;`;
+        db.run(sql, [status.ACCEPTED, challenge.id_challenges], (err, rows) => {
+            if (err) {
+                throw err;
+            }
+            resolve('PASSED');
         })
     })
 }
@@ -120,11 +144,37 @@ function challengesListReceived(id_user){
     })
 }
 
+function challengesListAccepted(id_user){
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT id_challenges,
+        Challenges.id_users_challenger,
+        Users2.username,
+        Challenges.id_mini_games,
+        MiniGames.label,
+        Challenges.id_users_challenged
+        FROM Challenges
+        JOIN Users Users1 ON Users1.id_users = Challenges.id_users_challenger
+        JOIN MiniGames ON MiniGames.id_mini_games = Challenges.id_mini_games
+        JOIN Users Users2 ON Users2.id_users = Challenges.id_users_challenged
+        WHERE (Challenges.id_users_challenger = ?
+        OR Challenges.id_users_challenged = ?)
+        AND status = ?`;
+        db.all(sql, [id_user, id_user, status.ACCEPTED], (err, rows) => {
+            if (err) {
+                throw err;
+            }
+            resolve(rows);
+        })
+    })
+}
+
 module.exports = {
     getAllChallenges,
     startChallenge,
     challengesListToAccept,
     challengesListSent,
     challengesListDone,
-    challengesListReceived
+    challengesListReceived,
+    challengesListAccepted,
+    challengesAccepted
 }

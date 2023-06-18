@@ -177,15 +177,13 @@ function ReceivedChallenges() {
         <p>Search and select a player to start a challenge :</p>
         <Toast ref={toast} />
         <Dialog
-          header="Click to select a challenge"
+          header="Do you want to accept the challenge"
           visible={dialog}
-          style={{ width: '50vw' }}
+          style={{ width: '30vw' }}
           onHide={handleClickCancel}
           footer={dialogFooter}
         >
-          <div>
-            <p>ouais ouais le chall</p>
-          </div>
+          <div>{/* <p>ouais ouais le chall</p> */}</div>
         </Dialog>
         <div className="card">
           <DataTable
