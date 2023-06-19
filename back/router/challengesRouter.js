@@ -36,6 +36,12 @@ challengesRouter.get('/list_to_accept', function(req, res) {
   })
 });
 
+challengesRouter.post('/accept', function(req, res) {
+  challengesAccepted(req.body.challenge).then(message => {
+    res.json({message: message})
+  })
+});
+
 challengesRouter.post('/list_sent', function(req, res) {
   challengesListSent(req.body.id_user).then(rows => {
     res.json(rows)
@@ -47,6 +53,12 @@ challengesRouter.post('/list_done', function(req, res) {
     res.json(rows)
   })
 });
+
+// challengesRouter.post('/finish', function(req, res) {
+//   challengesFinished(req.body.challenge, ).then(message => {
+//     res.json({message: message})
+//   })
+// });
 
 challengesRouter.post('/list_received', function(req, res) {
   challengesListReceived(req.body.id_user).then(rows => {

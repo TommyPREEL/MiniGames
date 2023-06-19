@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 function Notifications() {
   useEffect(() => {
-    fetch(`http://192.168.1.11:5000/api/challenges/list_to_accept`, {
+    fetch(`http://192.168.1.71:5000/api/challenges/list_to_accept`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

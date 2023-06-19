@@ -32,7 +32,7 @@ function App() {
   };
 
 //   const onLogout = () => {
-//   fetch(`http://192.168.1.11:5000/api/users/logout`, {
+//   fetch(`http://192.168.1.71:5000/api/users/logout`, {
 //     method: 'GET',
 //     headers: {
 //       'Content-Type': 'application/json',

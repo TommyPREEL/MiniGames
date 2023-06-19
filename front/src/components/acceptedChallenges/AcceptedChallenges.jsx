@@ -19,7 +19,7 @@ function AcceptedChallenges() {
     let inputs = {
       id_user: JSON.parse(localStorage.getItem('user')).id_users,
     };
-    fetch(`http://192.168.1.11:5000/api/challenges/list_accepted`, {
+    fetch(`http://192.168.1.71:5000/api/challenges/list_accepted`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ function AcceptedChallenges() {
         challenge: selectedChallenge,
       };
       console.log(inputs);
-      fetch(`http://192.168.1.11:5000/api/challenges/start`, {
+      fetch(`http://192.168.1.71:5000/api/challenges/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

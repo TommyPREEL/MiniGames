@@ -60,7 +60,7 @@ function Login() {
         username: data.get('username'),
         password: data.get('password'),
       };
-      fetch(`http://192.168.1.11:5000/api/users/connect`, {
+      fetch(`http://192.168.1.71:5000/api/users/connect`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

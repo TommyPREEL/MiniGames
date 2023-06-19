@@ -19,7 +19,7 @@ function ReceivedChallenges() {
     let inputs = {
       id_user: JSON.parse(localStorage.getItem('user')).id_users,
     };
-    fetch(`http://192.168.1.11:5000/api/challenges/list_received`, {
+    fetch(`http://192.168.1.71:5000/api/challenges/list_received`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -71,68 +71,65 @@ function ReceivedChallenges() {
   const [dialog, setDialog] = useState(false);
   const header = renderHeader();
 
-  // Cancel button
+  // Refuse button
+  function handleClickRefuse() {
+    setDialog(false);
+    setSelectedChallenge(null);
+  }
+
+  // Cancel
   function handleClickCancel() {
     setDialog(false);
     setSelectedChallenge(null);
   }
 
   // Save button
-  const handleClickStart = () => {
-    if (!selectedChallenge) {
-      toast.current.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Select a challenge',
-        life: 3000,
-      });
-    } else {
-      let inputs = {
-        // challenger: selectedChallenge.id_,
-        challenged: JSON.parse(localStorage.getItem('user')),
-        challenge: selectedChallenge,
-      };
-      console.log(inputs);
-      fetch(`http://192.168.1.11:5000/api/challenges/start`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(inputs),
+  const handleClickAccept = () => {
+    let inputs = {
+      // challenger: selectedChallenge.id_,
+      // challenged: JSON.parse(localStorage.getItem('user')),
+      challenge: selectedChallenge,
+    };
+    console.log(inputs);
+    fetch(`http://192.168.1.71:5000/api/challenges/accept`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(inputs),
+    })
+      .then((response) => response.json())
+      .then((dataBack) => {
+        setDialog(false);
+        if (dataBack.message === 'PASSED') {
+          toast.current.show({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Challenge accepted !',
+            life: 3000,
+          });
+          handleClickCancel();
+        }
       })
-        .then((response) => response.json())
-        .then((dataBack) => {
-          setDialog(false);
-          if (dataBack.message === 'PASSED') {
-            toast.current.show({
-              severity: 'success',
-              summary: 'Success',
-              detail: 'Challenge sent !',
-              life: 3000,
-            });
-            handleClickCancel();
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   // Footer dialog
   const dialogFooter = (
     <React.Fragment>
       <Button
-        label="Go back"
+        label="Refuse challenge"
         icon="pi pi-times"
-        outlined
-        onClick={handleClickCancel}
-        className="p-button-text"
+        severity="danger"
+        onClick={handleClickRefuse}
       />
       <Button
-        label="Let's start !"
+        label="Challenge accepted!"
         icon="pi pi-check"
-        onClick={handleClickStart}
+        onClick={handleClickAccept}
+        severity="success"
         autoFocus
       />
     </React.Fragment>
@@ -177,14 +174,12 @@ function ReceivedChallenges() {
         <p>Search and select a player to start a challenge :</p>
         <Toast ref={toast} />
         <Dialog
-          header="Do you want to accept the challenge"
+          header="Do you want to accept the challenge ?"
           visible={dialog}
           style={{ width: '30vw' }}
           onHide={handleClickCancel}
           footer={dialogFooter}
-        >
-          <div>{/* <p>ouais ouais le chall</p> */}</div>
-        </Dialog>
+        ></Dialog>
         <div className="card">
           <DataTable
             value={challengesList}
