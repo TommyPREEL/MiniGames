@@ -9,8 +9,13 @@ const { getAllChallenges,
   challengesListDone,
   challengesListReceived,
   challengesListAccepted,
-  challengesAccepted
-} = require('../models/challenges.js')
+  challengesAccepted,
+  challengesList,
+  challengesUpdateStatus
+} = require('../models/challenges.js');
+const { updateScoreWinner,
+  getScoreWinner
+ } = require('../models/usersMiniGames.js');
 
 challengesRouter.get('/players', function(req, res) {
     getAllUsers().then(users => {
@@ -54,11 +59,28 @@ challengesRouter.post('/list_done', function(req, res) {
   })
 });
 
-// challengesRouter.post('/finish', function(req, res) {
-//   challengesFinished(req.body.challenge, ).then(message => {
-//     res.json({message: message})
-//   })
-// });
+challengesRouter.post('/list', function(req, res) {
+  challengesList(req.body.id_user).then(rows => {
+    res.json(rows)
+  })
+});
+
+
+challengesRouter.post('/finish', function(req, res) {
+  challengesUpdateStatus(req.body.challenge).then(message => {
+    if(message){
+      getScoreWinner(req.body.challenge).then(score => {
+        updateScoreWinner(req.body.challenge, score).then((message) => {
+          res.json({message: message})
+        })
+      })
+    }else{
+      res.json({message: message})
+    }
+  })
+});
+
+
 
 challengesRouter.post('/list_received', function(req, res) {
   challengesListReceived(req.body.id_user).then(rows => {

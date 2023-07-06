@@ -4,6 +4,7 @@ import SentChallenges from '../components/sentChallenges/SentChallenges';
 import ReceivedChallenges from '../components/receivedChallenges/ReceivedChallenges';
 import DoneChallenges from '../components/doneChallenges/DoneChallenges';
 import AcceptedChallenges from '../components/acceptedChallenges/AcceptedChallenges';
+import StatusChallenges from '../components/statusChallenges/StatusChallenges';
 
 import { TabMenu } from 'primereact/tabmenu';
 
@@ -16,6 +17,7 @@ function Challenges() {
     { label: 'Challenges received', icon: 'pi pi-fw pi-calendar' },
     { label: 'Challenges accepted', icon: 'pi pi-fw pi-calendar' },
     { label: 'Challenges done', icon: 'pi pi-fw pi-calendar' },
+    { label: 'Challenges', icon: 'pi pi-fw pi-calendar' },
   ];
 
   return (
@@ -32,6 +34,7 @@ function Challenges() {
       {activeTab === 2 && <ReceivedChallenges></ReceivedChallenges>}
       {activeTab === 3 && <AcceptedChallenges></AcceptedChallenges>}
       {activeTab === 4 && <DoneChallenges></DoneChallenges>}
+      {activeTab === 5 && <StatusChallenges></StatusChallenges>}
     </div>
   );
 }

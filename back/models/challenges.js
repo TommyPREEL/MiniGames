@@ -28,8 +28,8 @@ function startChallenge(challenge){
     const second = String(currentDate.getSeconds()).padStart(2, '0');
     const formattedDateTime = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
     return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO Challenges (id_users_challenger, id_users_challenged, id_mini_games, status, challenges_date) VALUES (?, ?, ?, ?, ?);`;
-        db.run(sql, [challenge.challenger.id_users, challenge.challenged.id_users, challenge.challenge.id_mini_games, status.WAITING, formattedDateTime], (err, rows) => {
+        const sql = `INSERT INTO Challenges (id_users_challenger, id_users_challenged, id_mini_games, status, challenges_date, id_users_winner) VALUES (?, ?, ?, ?, ?, ?);`;
+        db.run(sql, [challenge.challenger.id_users, challenge.challenged.id_users, challenge.challenge.id_mini_games, status.WAITING, formattedDateTime, challenge], (err, rows) => {
             if (err) {
                 throw err;
             }
@@ -70,6 +70,36 @@ function challengesAccepted(challenge){
                 throw err;
             }
             resolve('PASSED');
+        })
+    })
+}
+
+function challengesList(id_user){
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT id_challenges, 
+        Challenges.id_users_challenger,
+        Challenges.id_users_winner,
+        Users1.username AS challenger,
+        Users2.username AS challenger,
+        Users3.username AS winner,
+        Challenges.id_mini_games, 
+        MiniGames.label AS mini_game, 
+        Challenges.id_users_challenged,
+        Challenges.challenges_date AS date,
+        Challenges.status AS status
+        FROM Challenges 
+        JOIN Users Users1 ON Users1.id_users = Challenges.id_users_challenger 
+        JOIN MiniGames ON MiniGames.id_mini_games = Challenges.id_mini_games 
+        JOIN Users Users2 ON Users2.id_users = Challenges.id_users_challenged
+        LEFT JOIN Users Users3 ON Users3.id_users = Challenges.id_users_winner
+        WHERE (Challenges.id_users_challenger = ?
+            OR Challenges.id_users_challenged = ?)
+        ORDER BY date DESC`;
+        db.all(sql, [id_user], (err, rows) => {
+            if (err) {
+                throw err;
+            }
+            resolve(rows);
         })
     })
 }
@@ -168,6 +198,20 @@ function challengesListAccepted(id_user){
     })
 }
 
+function challengesUpdateStatus(challenge) {
+    return new Promise((resolve, reject) => {
+        const sql = `UPDATE Challenges 
+        SET status = ? 
+        WHERE id_challenges = ?`;
+        db.run(sql, [status.FINISHED, challenge.id_challenges], (err, rows) => {
+            if (err) {
+                throw err;
+            }
+            resolve(true);
+        })
+    })
+}
+
 module.exports = {
     getAllChallenges,
     startChallenge,
@@ -176,5 +220,7 @@ module.exports = {
     challengesListDone,
     challengesListReceived,
     challengesListAccepted,
-    challengesAccepted
+    challengesAccepted,
+    challengesList,
+    challengesUpdateStatus
 }

@@ -103,6 +103,7 @@ function StartChallenges() {
   const header = renderHeader();
   const [dialog, setDialog] = useState(false);
   const [selectedChallenge, setSelectedChallenge] = useState(null);
+  const [selectedWinner, setSelectedWinner] = useState(null);
 
   const onRowSelect = (event) => {
     setSelectedPlayer(event.value);
@@ -117,17 +118,18 @@ function StartChallenges() {
 
   // Save button
   const handleClickStart = () => {
-    if (!selectedChallenge) {
+    if (!selectedChallenge && !selectedWinner) {
       toast.current.show({
         severity: 'error',
         summary: 'Error',
-        detail: 'Select a challenge',
+        detail: 'Select a challenge and a player',
         life: 3000,
       });
     } else {
       let inputs = {
         challenger: JSON.parse(localStorage.getItem('user')),
         challenged: selectedPlayer,
+        winner: selectedWinner,
         challenge: selectedChallenge,
       };
       console.log(inputs);
@@ -193,6 +195,10 @@ function StartChallenges() {
     );
   };
 
+  function test() {
+    console.log(selectedPlayer);
+    return selectedPlayer;
+  }
   return (
     <div>
       <p>Search and select a player to start a challenge :</p>
@@ -214,6 +220,19 @@ function StartChallenges() {
               />
             );
           })}
+        </div>
+        <div>
+          <div>{test}</div>
+          <div>{JSON.parse(localStorage.getItem('user')).username}</div>
+          {/* {challengesList.map(function (challenge) {
+            return (
+              <ChallengesCard
+                key={challenge.id_mini_games}
+                props={challenge}
+                handleClick={handleCardClick}
+              />
+            );
+          })} */}
         </div>
       </Dialog>
       <div className="card">
