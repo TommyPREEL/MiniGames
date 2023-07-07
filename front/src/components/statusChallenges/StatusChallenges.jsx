@@ -178,6 +178,17 @@ function StatusChallenges() {
           </React.Fragment>
         ));
         break;
+      case 'FINISHED':
+        setDialogContent(() => (
+          <div>
+            <div className="flex-auto">
+              <p className="font-bold block mb-2">
+                Winner : {event.data.challenger}
+              </p>
+            </div>
+          </div>
+        ));
+        break;
       default:
         dialogContent = <div>Easter problegg</div>;
         break;
@@ -203,8 +214,9 @@ function StatusChallenges() {
   const [fixBug, setFixBug] = useState(true);
   function handleClickYesWaiting() {
     console.log(fixBug);
-    if (selectedChallenge?.id_challenges !== undefined) {
+    if (selectedChallenge?.id_challenges == null) {
     } else {
+      console.log(selectedChallenge);
       let inputs = {
         challenge: selectedChallenge,
       };
