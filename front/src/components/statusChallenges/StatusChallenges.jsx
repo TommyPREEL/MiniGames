@@ -52,7 +52,7 @@ function StatusChallenges() {
           life: 3000,
         });
       });
-  }, []);
+  }, [update]);
 
   //   useEffect(() => {
   //     fetch('/orders')
@@ -62,14 +62,14 @@ function StatusChallenges() {
   //       });
   //   }, [update]);
 
-  const [statuses] = useState(['CANCELLED', 'DELIVERED', 'DONE', 'WAITING']);
+  const [statuses] = useState(['CANCELLED', 'FINISHED', 'DONE', 'WAITING']);
 
   const getStatus = (status) => {
     switch (status) {
       case 'CANCELLED':
         return 'danger';
 
-      case 'DONE':
+      case 'FINISHED':
         return 'success';
 
       case 'PAID':
@@ -200,10 +200,10 @@ function StatusChallenges() {
     setSelectedOrder(emptyOrder);
   }
 
-  const [fixBug, setFixBug] = useState(false);
+  const [fixBug, setFixBug] = useState(true);
   function handleClickYesWaiting() {
-    if (!fixBug) {
-      setFixBug(!fixBug);
+    console.log(fixBug);
+    if (selectedChallenge?.id_challenges !== undefined) {
     } else {
       let inputs = {
         challenge: selectedChallenge,

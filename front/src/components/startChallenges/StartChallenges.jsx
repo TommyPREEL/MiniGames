@@ -12,15 +12,17 @@ import { Dropdown } from 'primereact/dropdown';
 import { Tag } from 'primereact/tag';
 
 import ChallengesCard from '../challengesCard/ChallengesCard';
+import PlayersCard from '../playersCard/PlayersCard';
 
 function StartChallenges() {
   const [player, setPlayer] = useState('');
   const [playerList, setPlayerList] = useState([]);
-  const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [selectedPlayer, setSelectedPlayer] = useState('');
   const toast = useRef(null);
   // const emptyChallengesList = {
   // }
   const [challengesList, setChallengesList] = useState([{}]);
+  const [playersChallengedList, setPlayersChallengedList] = useState([{}]);
 
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -106,19 +108,25 @@ function StartChallenges() {
   const [selectedWinner, setSelectedWinner] = useState(null);
 
   const onRowSelect = (event) => {
+    console.log(event.value);
     setSelectedPlayer(event.value);
     setDialog(true);
+    setPlayersChallengedList([
+      event.value,
+      JSON.parse(localStorage.getItem('user')),
+    ]);
   };
   // Cancel button
   function handleClickCancel() {
     setDialog(false);
     setSelectedChallenge(null);
     setSelectedPlayer(null);
+    setSelectedWinner(null);
   }
 
   // Save button
   const handleClickStart = () => {
-    if (!selectedChallenge && !selectedWinner) {
+    if (!selectedChallenge || !selectedWinner) {
       toast.current.show({
         severity: 'error',
         summary: 'Error',
@@ -195,22 +203,42 @@ function StartChallenges() {
     );
   };
 
-  function test() {
+  const handlePlayersCardClick = (id) => {
+    setPlayersChallengedList((prevList) =>
+      prevList.map((player) => {
+        if (player.id_users === id) {
+          if (selectedWinner?.id_users === player.id_users) {
+            setSelectedWinner(null);
+          } else {
+            setSelectedWinner(player);
+          }
+          return { ...player, isSelected: !player.isSelected };
+        } else {
+          return { ...player, isSelected: false };
+        }
+      })
+    );
+  };
+  function test2() {
+    return this.selectedPlayer;
+  }
+  const test = () => {
     console.log(selectedPlayer);
     return selectedPlayer;
-  }
+  };
   return (
     <div>
       <p>Search and select a player to start a challenge :</p>
       <Toast ref={toast} />
       <Dialog
-        header="Click to select a challenge"
+        header="Click to select a challenge AND a winner"
         visible={dialog}
         style={{ width: '50vw' }}
         onHide={handleClickCancel}
         footer={dialogFooter}
       >
         <div>
+          Challenges :
           {challengesList.map(function (challenge) {
             return (
               <ChallengesCard
@@ -222,8 +250,30 @@ function StartChallenges() {
           })}
         </div>
         <div>
-          <div>{test}</div>
-          <div>{JSON.parse(localStorage.getItem('user')).username}</div>
+          <div>
+            Winner :
+            {playersChallengedList.map(function (player) {
+              return (
+                <PlayersCard
+                  key={player.id_users}
+                  props={player}
+                  handleClick={handlePlayersCardClick}
+                />
+              );
+            })}
+          </div>
+          {/* <div>
+            <PlayersCard
+              key={selectedPlayer.id_users}
+              props={selectedPlayer}
+              handleClick={handlePlayersCardClick}
+            />
+          </div> */}
+
+          {/* {selectedPlayer?.username}
+          </div>
+          <div>{JSON.parse(localStorage.getItem('user')).username}</div>  */}
+
           {/* {challengesList.map(function (challenge) {
             return (
               <ChallengesCard

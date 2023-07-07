@@ -29,7 +29,7 @@ function startChallenge(challenge){
     const formattedDateTime = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
     return new Promise((resolve, reject) => {
         const sql = `INSERT INTO Challenges (id_users_challenger, id_users_challenged, id_mini_games, status, challenges_date, id_users_winner) VALUES (?, ?, ?, ?, ?, ?);`;
-        db.run(sql, [challenge.challenger.id_users, challenge.challenged.id_users, challenge.challenge.id_mini_games, status.WAITING, formattedDateTime, challenge], (err, rows) => {
+        db.run(sql, [challenge.challenger.id_users, challenge.challenged.id_users, challenge.challenge.id_mini_games, status.WAITING, formattedDateTime, challenge.winner.id_users], (err, rows) => {
             if (err) {
                 throw err;
             }
