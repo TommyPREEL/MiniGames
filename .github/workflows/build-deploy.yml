@@ -82,7 +82,9 @@ jobs:
           key: ${{ secrets.KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-            mkdir -p minigames
+            mkdir -p minigames/front
+            mkdir -p minigames/back
+            mkdir -p minigames/orchestration
 
       # On récupère les artefacts
       - name: Get Artifact
@@ -96,7 +98,7 @@ jobs:
         with:
           switches: -avzr --delete
           path: built-front-app/*
-          remote_path: minigames/
+          remote_path: minigames/front
           remote_host: ${{ secrets.HOST }}
           remote_user: ${{ secrets.USER }}
           remote_key: ${{ secrets.KEY }}
@@ -108,7 +110,7 @@ jobs:
         with:
           switches: -avzr --delete
           path: built-back-app/*
-          remote_path: minigames/
+          remote_path: minigames/back
           remote_host: ${{ secrets.HOST }}
           remote_user: ${{ secrets.USER }}
           remote_key: ${{ secrets.KEY }}
@@ -120,7 +122,7 @@ jobs:
         with:
           switches: -avzr --update
           path: orchestration-apps/*
-          remote_path: minigames/
+          remote_path: minigames/orchestration
           remote_host: ${{ secrets.HOST }}
           remote_user: ${{ secrets.USER }}
           remote_key: ${{ secrets.KEY }}
