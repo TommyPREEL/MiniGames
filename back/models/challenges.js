@@ -74,6 +74,19 @@ function challengesAccepted(challenge){
     })
 }
 
+function challengesCancel(challenge){
+    return new Promise((resolve, reject) => {
+        const sql = `DELETE FROM Challenges 
+        WHERE id_challenges = ?;`;
+        db.run(sql, [challenge.id_challenges], (err, rows) => {
+            if (err) {
+                throw err;
+            }
+            resolve(true);
+        })
+    })
+}
+
 function challengesList(id_user){
     return new Promise((resolve, reject) => {
         const sql = `SELECT id_challenges, 
@@ -95,7 +108,7 @@ function challengesList(id_user){
         WHERE (Challenges.id_users_challenger = ?
             OR Challenges.id_users_challenged = ?)
         ORDER BY date DESC`;
-        db.all(sql, [id_user], (err, rows) => {
+        db.all(sql, [id_user, id_user], (err, rows) => {
             if (err) {
                 throw err;
             }
@@ -222,5 +235,6 @@ module.exports = {
     challengesListAccepted,
     challengesAccepted,
     challengesList,
-    challengesUpdateStatus
+    challengesUpdateStatus,
+    challengesCancel
 }

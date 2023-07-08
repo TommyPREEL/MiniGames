@@ -11,7 +11,8 @@ const { getAllChallenges,
   challengesListAccepted,
   challengesAccepted,
   challengesList,
-  challengesUpdateStatus
+  challengesUpdateStatus,
+  challengesCancel
 } = require('../models/challenges.js');
 const { updateScoreWinner,
   getScoreWinner
@@ -80,6 +81,11 @@ challengesRouter.post('/finish', function(req, res) {
   })
 });
 
+challengesRouter.post('/cancel', function(req, res) {
+  challengesCancel(req.body.challenge).then(response => {
+    res.json(response)
+  })
+});
 
 
 challengesRouter.post('/list_received', function(req, res) {

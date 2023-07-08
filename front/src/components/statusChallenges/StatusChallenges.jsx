@@ -62,18 +62,12 @@ function StatusChallenges() {
   //       });
   //   }, [update]);
 
-  const [statuses] = useState(['CANCELLED', 'FINISHED', 'DONE', 'WAITING']);
+  const [statuses] = useState(['FINISHED', 'WAITING']);
 
   const getStatus = (status) => {
     switch (status) {
-      case 'CANCELLED':
-        return 'danger';
-
       case 'FINISHED':
         return 'success';
-
-      case 'PAID':
-        return 'info';
 
       case 'WAITING':
         return 'warning';
@@ -115,84 +109,129 @@ function StatusChallenges() {
       />
     );
   };
+  const handleClickCloseDialog = () => {
+    setDialog(false);
+    setSelectedChallenge(null);
+  };
   const [dialogContent, setDialogContent] = useState(null);
   const [dialogFooter, setDialogFooter] = useState(null);
+
   const onRowSelect = (event) => {
     setSelectedChallenge(event.data);
-    console.log(event.data);
+    localStorage.setItem('selectedChallenge', JSON.stringify(event.data));
+    console.log(selectedChallenge);
     switch (event.data.status) {
       case 'WAITING':
-        setDialogContent(() => (
-          <div>
-            <div className="flex-auto">
-              <label htmlFor="challenger" className="font-bold block mb-2">
-                Challenger
-              </label>
-              <InputText
-                id="challenger"
-                defaultValue={event.data.challenger}
-                disabled
-              />
+        console.log(event.data.challenger);
+        if (
+          event.data.challenger ===
+          JSON.parse(localStorage.getItem('user')).username
+        ) {
+          setDialogContent(() => (
+            <div>
+              <div className="flex-auto">
+                <p className="font-bold block mb-2">Waiting for response...</p>
+              </div>
             </div>
-            <div className="flex-auto">
-              <label htmlFor="mini_game" className="font-bold block mb-2">
-                Mini Game
-              </label>
-              <InputText
-                id="mini_game"
-                defaultValue={event.data.mini_game}
-                disabled
+          ));
+          // Footer dialog
+          setDialogFooter(() => (
+            <React.Fragment>
+              <Button
+                label="Ok, I'll wait..."
+                icon="pi pi-check"
+                autoFocus
+                severity="success"
+                onClick={handleClickCloseDialog}
               />
+            </React.Fragment>
+          ));
+        } else {
+          setDialogContent(() => (
+            <div>
+              <div className="flex-auto">
+                <label htmlFor="challenger" className="font-bold block mb-2">
+                  Challenger
+                </label>
+                <InputText
+                  id="challenger"
+                  defaultValue={event.data.challenger}
+                  disabled
+                />
+              </div>
+              <div className="flex-auto">
+                <label htmlFor="mini_game" className="font-bold block mb-2">
+                  Mini Game
+                </label>
+                <InputText
+                  id="mini_game"
+                  defaultValue={event.data.mini_game}
+                  disabled
+                />
+              </div>
+              <div className="flex-auto">
+                <label htmlFor="winner" className="font-bold block mb-2">
+                  Winner
+                </label>
+                <InputText
+                  id="winner"
+                  defaultValue={event.data.winner}
+                  disabled
+                />
+              </div>
+              <p className="font-bold block mb-2">
+                Could you confirm that this information is correct ?
+              </p>
             </div>
-            <div className="flex-auto">
-              <label htmlFor="winner" className="font-bold block mb-2">
-                Winner
-              </label>
-              <InputText
-                id="winner"
-                defaultValue={event.data.winner}
-                disabled
+          ));
+          // Footer dialog
+          setDialogFooter(() => (
+            <React.Fragment>
+              <Button
+                label="No, liar !"
+                icon="pi pi-times"
+                onClick={handleClickNoWaiting}
+                severity="danger"
               />
-            </div>
-            <p className="font-bold block mb-2">
-              Could you confirm that this information is correct ?
-            </p>
-          </div>
-        ));
-        // Footer dialog
-        setDialogFooter(() => (
-          <React.Fragment>
-            <Button
-              label="No, liar !"
-              icon="pi pi-times"
-              outlined
-              onClick={handleClickNoWaiting}
-              className="p-button-text"
-            />
-            <Button
-              label="Yes, sure !"
-              icon="pi pi-check"
-              onClick={handleClickYesWaiting}
-              autoFocus
-            />
-          </React.Fragment>
-        ));
+              <Button
+                label="Yes, sure !"
+                icon="pi pi-check"
+                onClick={handleClickYesWaiting}
+                autoFocus
+                severity="success"
+              />
+            </React.Fragment>
+          ));
+        }
         break;
       case 'FINISHED':
         setDialogContent(() => (
           <div>
             <div className="flex-auto">
               <p className="font-bold block mb-2">
-                Winner : {event.data.challenger}
+                Winner : {event.data.winner}
               </p>
             </div>
           </div>
+        ));
+        // Footer dialog
+        setDialogFooter(() => (
+          <React.Fragment>
+            <Button
+              label="Okey !"
+              icon="pi pi-check"
+              autoFocus
+              severity="success"
+              onClick={handleClickCloseDialog}
+            />
+          </React.Fragment>
         ));
         break;
       default:
         dialogContent = <div>Easter problegg</div>;
         break;
     }
+    console.log(JSON.parse(localStorage.getItem('selectedChallenge')));
     // setSelectedOrder(event.data);
 
     // setTempStatus(event.data.status);
@@ -201,8 +240,29 @@ function StatusChallenges() {
 
   // Cancel button for waiting challenge
   function handleClickNoWaiting() {
-    setDialog(false);
-    setSelectedChallenge(null);
+    let inputs = {
+      challenge: JSON.parse(localStorage.getItem('selectedChallenge')), //selectedChallenge,
+    };
+    fetch(`http://192.168.1.71:5000/api/challenges/cancel`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(inputs),
+    })
+      .then((response) => response.json())
+      .then((dataBack) => {
+        setDialog(false);
+        localStorage.removeItem('selectedChallenge');
+        if (dataBack.message) {
+          setDialog(false);
+          setUpdate(!update);
+          setSelectedChallenge(null);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
   // Cancel button
@@ -211,36 +271,30 @@ function StatusChallenges() {
     setSelectedOrder(emptyOrder);
   }
 
-  const [fixBug, setFixBug] = useState(true);
   function handleClickYesWaiting() {
-    console.log(fixBug);
-    if (selectedChallenge?.id_challenges == null) {
-    } else {
-      console.log(selectedChallenge);
-      let inputs = {
-        challenge: selectedChallenge,
-      };
-      fetch(`http://192.168.1.71:5000/api/challenges/finish`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(inputs),
-      })
-        .then((response) => response.json())
-        .then((dataBack) => {
+    let inputs = {
+      challenge: JSON.parse(localStorage.getItem('selectedChallenge')), //selectedChallenge,
+    };
+    fetch(`http://192.168.1.71:5000/api/challenges/finish`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(inputs),
+    })
+      .then((response) => response.json())
+      .then((dataBack) => {
+        setDialog(false);
+        localStorage.removeItem('selectedChallenge');
+        if (dataBack.message) {
           setDialog(false);
-          if (dataBack.message) {
-            setDialog(false);
-            setUpdate(!update);
-            setSelectedChallenge(null);
-            setFixBug(false);
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
+          setUpdate(!update);
+          setSelectedChallenge(null);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
   // Save button
@@ -288,54 +342,6 @@ function StatusChallenges() {
         onHide={handleClickNo}
         footer={dialogFooter}
       >
-        {/* <div>
-          <div className="flex-auto">
-            <label htmlFor="username" className="font-bold block mb-2">
-              Username
-            </label>
-            <InputText
-              id="username"
-              defaultValue={selectedOrder.username}
-              disabled
-            />
-          </div>
-          <div className="flex-auto">
-            <label htmlFor="orders_date" className="font-bold block mb-2">
-              Orders Date
-            </label>
-            <InputText
-              id="orders_date"
-              defaultValue={selectedOrder.orders_date}
-              disabled
-            />
-          </div>
-          <div className="flex-auto">
-            <label htmlFor="price" className="font-bold block mb-2">
-              Total Price
-            </label>
-            <InputNumber
-              inputId="price"
-              value={selectedOrder.total_price}
-              mode="currency"
-              currency="USD"
-              locale="en-US"
-              disabled
-            />
-          </div>
-          <div className="flex-auto">
-            <label htmlFor="status" className="font-bold block mb-2">
-              Status
-            </label>
-            <Dropdown
-              value={tempStatus}
-              onChange={(e) => setTempStatus(e.value)}
-              options={statuses}
-              placeholder="Select a Status"
-              className="w-full md:w-14rem"
-            />
-          </div>
-
-  </div>*/}
         {dialogContent}
       </Dialog>
       <DataTable
