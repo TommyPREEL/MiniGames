@@ -38,7 +38,7 @@ jobs:
           name: built-front-app
           path: ./front/build/
 
-  build-front:
+  build-back:
     runs-on: ubuntu-latest
 
     # On aurait pu utiliser une strategy pour tester différentes versions de NodeJS
