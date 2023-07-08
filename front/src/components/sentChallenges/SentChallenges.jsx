@@ -34,7 +34,7 @@ function SentChallenges() {
     let inputs = {
       id_user: JSON.parse(localStorage.getItem('user')).id_users,
     };
-    fetch(`http://192.168.1.71:5000/api/challenges/list_sent`, {
+    fetch(`http://localhost:5000/api/challenges/list_sent`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -32,7 +32,7 @@ function StatusChallenges() {
     let inputs = {
       id_user: JSON.parse(localStorage.getItem('user')).id_users,
     };
-    fetch(`http://192.168.1.71:5000/api/challenges/list`, {
+    fetch(`http://localhost:5000/api/challenges/list`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -243,7 +243,7 @@ function StatusChallenges() {
     let inputs = {
       challenge: JSON.parse(localStorage.getItem('selectedChallenge')), //selectedChallenge,
     };
-    fetch(`http://192.168.1.71:5000/api/challenges/cancel`, {
+    fetch(`http://localhost:5000/api/challenges/cancel`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -275,7 +275,7 @@ function StatusChallenges() {
     let inputs = {
       challenge: JSON.parse(localStorage.getItem('selectedChallenge')), //selectedChallenge,
     };
-    fetch(`http://192.168.1.71:5000/api/challenges/finish`, {
+    fetch(`http://localhost:5000/api/challenges/finish`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

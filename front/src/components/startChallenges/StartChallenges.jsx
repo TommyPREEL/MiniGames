@@ -32,7 +32,7 @@ function StartChallenges() {
     // status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
   });
   useEffect(() => {
-    fetch(`http://192.168.1.71:5000/api/challenges/players`, {
+    fetch(`http://localhost:5000/api/challenges/players`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ function StartChallenges() {
   }, []);
 
   useEffect(() => {
-    fetch(`http://192.168.1.71:5000/api/miniGames`, {
+    fetch(`http://localhost:5000/api/miniGames`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ function StartChallenges() {
         challenge: selectedChallenge,
       };
       console.log(inputs);
-      fetch(`http://192.168.1.71:5000/api/challenges/start`, {
+      fetch(`http://localhost:5000/api/challenges/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
