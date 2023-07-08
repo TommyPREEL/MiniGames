@@ -16,7 +16,7 @@ function DoneChallenges() {
     let inputs = {
       id_user: JSON.parse(localStorage.getItem('user')).id_users,
     };
-    fetch(`http://localhost:5000/api/challenges/list_done`, {
+    fetch(`http://51.75.125.127:5000/api/challenges/list_done`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
