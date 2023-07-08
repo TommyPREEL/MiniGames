@@ -74,6 +74,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Create minigames folder if not exist
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          script: |
+            mkdir -p minigames
+
       # On récupère les artefacts
       - name: Get Artifact
         uses: actions/download-artifact@v3
@@ -110,7 +120,7 @@ jobs:
         with:
           switches: -avzr --update
           path: orchestration-apps/*
-          remote_path: minigames/orchestration/
+          remote_path: ./
           remote_host: ${{ secrets.HOST }}
           remote_user: ${{ secrets.USER }}
           remote_key: ${{ secrets.KEY }}
@@ -122,6 +132,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
           script: |
             cd ./minigames/orchestration
             docker build -t minigames-front -f ./dockerfile.front ../front
