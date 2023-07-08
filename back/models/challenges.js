@@ -80,7 +80,7 @@ function challengesList(id_user){
         Challenges.id_users_challenger,
         Challenges.id_users_winner,
         Users1.username AS challenger,
-        Users2.username AS challenger,
+        Users2.username AS challenged,
         Users3.username AS winner,
         Challenges.id_mini_games, 
         MiniGames.label AS mini_game, 

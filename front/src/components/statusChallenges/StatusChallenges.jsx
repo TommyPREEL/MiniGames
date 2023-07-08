@@ -360,6 +360,14 @@ function StatusChallenges() {
           style={{ minWidth: '12rem' }}
         />
         <Column
+          field="challenged"
+          header="Challenged"
+          filter
+          showFilterMenu={false}
+          filterPlaceholder="Tommy PREEL"
+          style={{ minWidth: '12rem' }}
+        />
+        <Column
           field="mini_game"
           header="Mini Game"
           filter
