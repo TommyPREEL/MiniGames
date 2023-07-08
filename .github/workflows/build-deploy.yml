@@ -135,7 +135,7 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
             cd ./minigames/orchestration
-            docker build -t minigames-front -f ./dockerfile.front ../front
-            docker build -t minigames-back -f ./dockerfile.back ../back
-            docker run -p 3000:80 -d minigames-front
-            docker run -p 5000:5000 -d minigames-back
+            sudo docker build -t minigames-front -f ./dockerfile.front ../front
+            sudo docker build -t minigames-back -f ./dockerfile.back ../back
+            sudo docker run -p 3000:80 -d minigames-front
+            sudo docker run -p 5000:5000 -d minigames-back
