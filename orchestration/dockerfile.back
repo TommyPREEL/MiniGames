@@ -1,0 +1,16 @@
+FROM node:16-alpine3.17
+
+# Définissez le répertoire de travail dans le conteneur
+WORKDIR /app
+
+# Copiez les fichiers de l'application dans le conteneur
+COPY . .
+
+# Installez les dépendances de l'application
+RUN npm install
+
+# Exposez le port sur lequel l'application écoute
+EXPOSE 5000
+
+# Démarrez l'application lorsque le conteneur démarre
+CMD [ "npm", "start" ]

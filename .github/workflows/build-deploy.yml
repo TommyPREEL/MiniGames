@@ -1,0 +1,127 @@
+name: 'Build and Deploy'
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-front:
+    runs-on: ubuntu-latest
+
+    # On aurait pu utiliser une strategy pour tester différentes versions de NodeJS
+
+    steps:
+      # Vérification du contenu du commit.
+      - uses: actions/checkout@v3
+
+      # Mise en place de l'environnement NodeJS.
+      - name: Setup NodeJS environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+
+      # Installation des dépendances.
+      - name: Install dependencies
+        working-directory: ./front
+        run: npm ci
+
+      # Construction de nos applications avec Nx (Monorepo)
+      - name: Build Web-App Application
+        working-directory: ./front
+        run: npm build
+
+      # On utilise des artefacts pour stocker les applications construites
+      - name: Save built apps on Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: built-front-app
+          path: ./front/build/
+
+  build-front:
+    runs-on: ubuntu-latest
+
+    # On aurait pu utiliser une strategy pour tester différentes versions de NodeJS
+
+    steps:
+      # Vérification du contenu du commit.
+      - uses: actions/checkout@v3
+
+      # On utilise des artefacts pour stocker les applications construites
+      - name: Save built apps on Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: built-back-app
+          path: ./back/
+
+  copy-orchestration:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Vérification du contenu du commit.
+      - uses: actions/checkout@v3
+
+      # On utilise des artefacts pour stocker les orchestrations des applications
+      - name: Save built apps on Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: orchestration-apps
+          path: orchestration/
+    
+  deploy:
+    # On dépend du job "build" pour récupérer les artefacts
+    needs: [build-front, build-back, copy-orchestration]
+    runs-on: ubuntu-latest
+
+    steps:
+      # On récupère les artefacts
+      - name: Get Artifact
+        uses: actions/download-artifact@v3
+        with:
+          path: ./
+
+      # On déploie l'applications front sur notre serveur OVH
+      - name: Copy built front app to OVH server
+        uses: Burnett01/rsync-deployments@5.2.1
+        with:
+          switches: -avzr --delete
+          path: built-front-app/
+          remote_path: ./minigames/front/
+          remote_host: ${{ secrets.HOST }}
+          remote_user: ${{ secrets.USER }}
+          remote_key: ${{ secrets.KEY }}
+
+      # On déploie l'applications back sur notre serveur OVH
+      - name: Copy built back app to OVH server
+        uses: Burnett01/rsync-deployments@5.2.1
+        with:
+          switches: -avzr --delete
+          path: built-back-app/
+          remote_path: ./minigames/back/
+          remote_host: ${{ secrets.HOST }}
+          remote_user: ${{ secrets.USER }}
+          remote_key: ${{ secrets.KEY }}
+
+      # On déploie les orchestrations sur notre serveur OVH
+      - name: Copy built apps to OVH server
+        uses: Burnett01/rsync-deployments@5.2.1
+        with:
+          switches: -avzr --update
+          path: orchestration-apps/*
+          remote_path: ./minigames/orchestration/
+          remote_host: ${{ secrets.HOST }}
+          remote_user: ${{ secrets.USER }}
+          remote_key: ${{ secrets.KEY }}
+
+      - name: Deploy to OVH server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          script: |
+            cd ./minigames/orchestration
+            docker build -t minigames-front -f ./dockerfile.front ../front
+            docker build -t minigames-back -f ./dockerfile.back ../back
+            docker run -p 3000:80 -d minigames-front
+            docker run -p 5000:5000 -d minigames-back

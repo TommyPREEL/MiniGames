@@ -1,0 +1,8 @@
+# Utilisez une image de base contenant Node.js
+FROM nginx:stable-perl
+
+# Copiez le reste des fichiers de l'application dans le conteneur
+COPY ./build /usr/share/nginx/html
+
+# Exposez le port sur lequel l'application écoute
+EXPOSE 80
