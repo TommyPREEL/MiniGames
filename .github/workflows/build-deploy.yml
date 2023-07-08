@@ -29,7 +29,7 @@ jobs:
       # Construction de nos applications avec Nx (Monorepo)
       - name: Build Web-App Application
         working-directory: ./front
-        run: npm build
+        run: npm run build
 
       # On utilise des artefacts pour stocker les applications construites
       - name: Save built apps on Artifact
