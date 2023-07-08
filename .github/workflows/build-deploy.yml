@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Create minigames folder if not exist
+      - name: Create minigames folder if not exist
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
