@@ -254,11 +254,11 @@ function StatusChallenges() {
       .then((dataBack) => {
         setDialog(false);
         localStorage.removeItem('selectedChallenge');
-        if (dataBack.message) {
-          setDialog(false);
-          setUpdate(!update);
-          setSelectedChallenge(null);
-        }
+        // if (dataBack.message) {
+        setDialog(false);
+        setUpdate(!update);
+        setSelectedChallenge(null);
+        // }
       })
       .catch((error) => {
         console.error(error);

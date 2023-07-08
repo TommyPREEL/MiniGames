@@ -13,10 +13,10 @@ function Challenges() {
 
   const items = [
     { label: 'Start a challenge', icon: 'pi pi-fw pi-home' },
-    { label: 'Challenges sent', icon: 'pi pi-fw pi-calendar' },
-    { label: 'Challenges received', icon: 'pi pi-fw pi-calendar' },
-    { label: 'Challenges accepted', icon: 'pi pi-fw pi-calendar' },
-    { label: 'Challenges done', icon: 'pi pi-fw pi-calendar' },
+    // { label: 'Challenges sent', icon: 'pi pi-fw pi-calendar' },
+    // { label: 'Challenges received', icon: 'pi pi-fw pi-calendar' },
+    // { label: 'Challenges accepted', icon: 'pi pi-fw pi-calendar' },
+    // { label: 'Challenges done', icon: 'pi pi-fw pi-calendar' },
     { label: 'Challenges', icon: 'pi pi-fw pi-calendar' },
   ];
 
@@ -30,11 +30,11 @@ function Challenges() {
         />
       </div>
       {activeTab === 0 && <StartChallenges></StartChallenges>}
-      {activeTab === 1 && <SentChallenges></SentChallenges>}
+      {/* {activeTab === 1 && <SentChallenges></SentChallenges>}
       {activeTab === 2 && <ReceivedChallenges></ReceivedChallenges>}
       {activeTab === 3 && <AcceptedChallenges></AcceptedChallenges>}
-      {activeTab === 4 && <DoneChallenges></DoneChallenges>}
-      {activeTab === 5 && <StatusChallenges></StatusChallenges>}
+      {activeTab === 4 && <DoneChallenges></DoneChallenges>} */}
+      {activeTab === 1 && <StatusChallenges></StatusChallenges>}
     </div>
   );
 }
