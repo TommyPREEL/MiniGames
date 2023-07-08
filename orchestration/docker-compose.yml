@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  minigames-app-front:
+    build: 
+      context: ../front
+      dockerfile: ./dockerfile.front
+    image: minigames-front
+    ports:
+      - 3000:80
+    container_name: minigames-app-front
+    restart: always
+
+  minigames-app-back:
+    build: 
+      context: ../back
+      dockerfile: ./dockerfile.back
+    image: minigames-back
+    ports:
+      - 5000:5000
+    container_name: minigames-app-back
+    restart: always
