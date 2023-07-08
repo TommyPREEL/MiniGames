@@ -90,6 +90,7 @@ jobs:
           remote_host: ${{ secrets.HOST }}
           remote_user: ${{ secrets.USER }}
           remote_key: ${{ secrets.KEY }}
+          remote_key_pass: ${{ secrets.PASSPHRASE }}
 
       # On déploie l'applications back sur notre serveur OVH
       - name: Copy built back app to OVH server
@@ -101,6 +102,7 @@ jobs:
           remote_host: ${{ secrets.HOST }}
           remote_user: ${{ secrets.USER }}
           remote_key: ${{ secrets.KEY }}
+          remote_key_pass: ${{ secrets.PASSPHRASE }}
 
       # On déploie les orchestrations sur notre serveur OVH
       - name: Copy built apps to OVH server
@@ -112,6 +114,7 @@ jobs:
           remote_host: ${{ secrets.HOST }}
           remote_user: ${{ secrets.USER }}
           remote_key: ${{ secrets.KEY }}
+          remote_key_pass: ${{ secrets.PASSPHRASE }}
 
       - name: Deploy to OVH server
         uses: appleboy/ssh-action@master
