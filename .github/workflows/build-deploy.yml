@@ -137,4 +137,4 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
             cd ./minigames/orchestration
-            sudo docker compose up -d
+            sudo docker compose up --force-recreate -d

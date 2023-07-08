@@ -17,5 +17,7 @@ services:
     image: minigames-back
     ports:
       - 5000:5000
+    volume:
+      - ../db:/app/db
     container_name: minigames-app-back
     restart: always
