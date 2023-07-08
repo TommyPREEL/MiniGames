@@ -9,7 +9,7 @@ let notificationsRouter = require('./router/notificationsRouter');
 const cors = require("cors");
 
 // Cors header settings
-app.use(cors());
+app.use(cors({origin: '*'}));
 
 // app.set("view engine", "ejs");
 
