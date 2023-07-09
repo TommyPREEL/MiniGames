@@ -26,7 +26,7 @@ function getScoreWinner(challenge) {
             if (err) {
                 throw err;
             }
-            resolve(rows);
+            resolve(rows[0]);
         })
     })
 }

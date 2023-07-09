@@ -68,16 +68,19 @@ challengesRouter.post('/list', function(req, res) {
 
 
 challengesRouter.post('/finish', function(req, res) {
+  console.log("coucou")
   challengesUpdateStatus(req.body.challenge).then(message => {
-    if(message){
+    // if(message){
       getScoreWinner(req.body.challenge).then(score => {
+        console.log(score)
+        if(score.length === 0){ score = 0}
         updateScoreWinner(req.body.challenge, score).then((message) => {
           res.json({message: message})
         })
       })
-    }else{
-      res.json({message: message})
-    }
+    // }else{
+    //   res.json({message: message})
+    // }
   })
 });
 
