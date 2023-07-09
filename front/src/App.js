@@ -32,7 +32,7 @@ function App() {
   };
 
 //   const onLogout = () => {
-//   fetch(`http://51.75.125.127:5000/api/users/logout`, {
+//   fetch(`http://vps-222d59be.vps.ovh.net:5000/api/users/logout`, {
 //     method: 'GET',
 //     headers: {
 //       'Content-Type': 'application/json',

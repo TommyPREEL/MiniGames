@@ -32,7 +32,7 @@ function StartChallenges() {
     // status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
   });
   useEffect(() => {
-    fetch(`http://51.75.125.127:5000/api/challenges/players`, {
+    fetch(`http://vps-222d59be.vps.ovh.net:5000/api/challenges/players`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ function StartChallenges() {
   }, []);
 
   useEffect(() => {
-    fetch(`http://51.75.125.127:5000/api/miniGames`, {
+    fetch(`http://vps-222d59be.vps.ovh.net:5000/api/miniGames`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ function StartChallenges() {
         challenge: selectedChallenge,
       };
       console.log(inputs);
-      fetch(`http://51.75.125.127:5000/api/challenges/start`, {
+      fetch(`http://vps-222d59be.vps.ovh.net:5000/api/challenges/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

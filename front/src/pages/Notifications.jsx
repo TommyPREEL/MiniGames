@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 function Notifications() {
   useEffect(() => {
-    fetch(`http://51.75.125.127:5000/api/challenges/list_to_accept`, {
+    fetch(`http://vps-222d59be.vps.ovh.net:5000/api/challenges/list_to_accept`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
