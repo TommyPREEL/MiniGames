@@ -31,6 +31,11 @@ jobs:
         working-directory: ./front
         run: npm run build
 
+      # Move docker file in build folder
+      - name: Move dockerfile
+        working-directory: ./front
+        run: mv ./dockerfile.front ./build
+
       # On utilise des artefacts pour stocker les applications construites
       - name: Save built apps on Artifact
         uses: actions/upload-artifact@v3
@@ -137,4 +142,4 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
             cd ./minigames/orchestration
-            sudo docker compose up --force-recreate -d
+            sudo docker compose up --build --force-recreate -d
