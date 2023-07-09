@@ -154,9 +154,9 @@ function Login() {
                 </Link>
               </Grid> */}
               <Grid item>
-                <Link onClick={handleClickRegister} variant="body2">
+                <p onClick={handleClickRegister} variant="body2">
                   {"Don't have an account? Sign Up"}
-                </Link>
+                </p>
               </Grid>
             </Grid>
           </Box>

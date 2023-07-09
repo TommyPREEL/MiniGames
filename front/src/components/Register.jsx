@@ -165,9 +165,9 @@ function Register() {
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link onClick={handleClickLogin} variant="body2">
+                <p onClick={handleClickLogin} variant="body2">
                   Already have an account? Sign in !
-                </Link>
+                </p>
               </Grid>
             </Grid>
           </Box>
