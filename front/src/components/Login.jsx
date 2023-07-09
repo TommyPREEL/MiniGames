@@ -59,6 +59,7 @@ function Login() {
       };
       fetch(`http://51.75.125.127:5000/api/users/connect`, {
         method: 'POST',
+        mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
         },
