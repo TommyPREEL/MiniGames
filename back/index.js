@@ -6,22 +6,22 @@ let miniGamesRouter = require('./router/miniGamesRouter');
 let tournamentsRouter = require('./router/tournamentsRouter');
 let usersRouter = require('./router/usersRouter');
 let notificationsRouter = require('./router/notificationsRouter');
-// const cors = require("cors");
+const cors = require("cors");
 
-// const corsOptions = {
-//   origin: '*'
-// };
-// // Cors header settings
-// app.use(cors(corsOptions));
+const corsOptions = {
+  origin: '*'
+};
+// Cors header settings
+app.use(cors(corsOptions));
 
 // app.set("view engine", "ejs");
 
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', '*');
-  res.setHeader('Access-Control-Allow-Headers', '*');
-  next();
-});
+// app.use((req, res, next) => {
+//   res.setHeader('Access-Control-Allow-Origin', '*');
+//   res.setHeader('Access-Control-Allow-Methods', '*');
+//   res.setHeader('Access-Control-Allow-Headers', '*');
+//   next();
+// });
 
 // app.use(cors(corsOptions));
 let session = require('express-session')
