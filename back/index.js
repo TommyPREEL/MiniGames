@@ -6,19 +6,22 @@ let miniGamesRouter = require('./router/miniGamesRouter');
 let tournamentsRouter = require('./router/tournamentsRouter');
 let usersRouter = require('./router/usersRouter');
 let notificationsRouter = require('./router/notificationsRouter');
-const cors = require("cors");
+// const cors = require("cors");
 
-const corsOptions = {
-  origin: '*'
-};
-// Cors header settings
-app.use(cors(corsOptions));
+// const corsOptions = {
+//   origin: '*'
+// };
+// // Cors header settings
+// app.use(cors(corsOptions));
 
 // app.set("view engine", "ejs");
 
+app.use(function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  next();
+})
 
-
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 let session = require('express-session')
 
 app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}))
