@@ -82,6 +82,9 @@ function Login() {
     }
   };
 
+  const handleClickRegister = () => {
+    navigate('/register');
+  };
   const access = () => {
     if (localStorage.getItem('user')) return <Navigate to="/"></Navigate>;
   };
@@ -151,7 +154,7 @@ function Login() {
                 </Link>
               </Grid> */}
               <Grid item>
-                <Link to="/register" variant="body2">
+                <Link onClick={handleClickRegister} variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>

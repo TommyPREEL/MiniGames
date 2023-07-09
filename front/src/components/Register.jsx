@@ -25,10 +25,7 @@ function Copyright(props) {
       {...props}
     >
       {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Tommy PREEL
-      </Link>{' '}
-      {new Date().getFullYear()}
+      Tommy PREEL {new Date().getFullYear()}
       {'.'}
     </Typography>
   );
@@ -89,6 +86,10 @@ function Register() {
           console.error(error);
         });
     }
+  };
+
+  const handleClickLogin = () => {
+    navigate('/');
   };
 
   const access = () => {
@@ -164,7 +165,7 @@ function Register() {
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link to="/" variant="body2">
+                <Link onClick={handleClickLogin} variant="body2">
                   Already have an account? Sign in !
                 </Link>
               </Grid>
