@@ -8,12 +8,17 @@ let usersRouter = require('./router/usersRouter');
 let notificationsRouter = require('./router/notificationsRouter');
 const cors = require("cors");
 
+const corsOptions = {
+  origin: '*'
+};
 // Cors header settings
-app.use(cors({origin: '*'}));
+app.use(cors(corsOptions));
 
 // app.set("view engine", "ejs");
 
 
+
+app.use(cors(corsOptions));
 let session = require('express-session')
 
 app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}))
