@@ -15,6 +15,7 @@ import Notifications from '../pages/Notifications';
 import RouteAdmin from './RouteAdmin';
 import RouteChallenges from './RouteChallenges';
 import RouteTournaments from './RouteTournaments';
+import RouteAmongLegends from './RouteAmongLegends';
 
 function RoutesIndex({onLogout}) {
   return (
@@ -24,6 +25,7 @@ function RoutesIndex({onLogout}) {
       <Route path="/" element={<Home/>} />
       <Route path="/challenges/*" element={<RouteChallenges/>} />
       <Route path="/tournaments/*" element={<RouteTournaments/>} />
+      <Route path="/amongLegends/*" element={<RouteAmongLegends/>} />
       <Route path="/notifications" element={<Notifications/>} />
       <Route path="/admin/*" element={<RouteAdmin/>} />
       <Route path="/settings" element={<Settings/>} />
