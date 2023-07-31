@@ -21,7 +21,7 @@ import {
   ProjectContext,
 } from '../context/ProjectContext';
 
-let pages = ['Challenges', 'Tournaments'];
+let pages = ['Challenges', 'Tournaments', 'AmongLegends'];
 let settings = ['Notifications', 'Settings', 'Logout'];
 
 function Header() {
@@ -69,6 +69,9 @@ function Header() {
         break;
       case 'Notifications':
         navigate('/notifications');
+        break;
+      case 'AmongLegends':
+        navigate('/amongLegends');
         break;
       default:
         navigate('/errorPage');
