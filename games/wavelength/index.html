@@ -73,6 +73,13 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .send-btn{padding:12px 20px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#000;font-family:var(--font-display);font-size:18px;letter-spacing:1px;cursor:pointer;white-space:nowrap;}
 /* Points badge */
 .pts-badge{display:inline-block;padding:6px 20px;border-radius:20px;font-family:var(--font-display);font-size:28px;letter-spacing:2px;border:1px solid var(--accent);color:var(--accent);background:rgba(52,211,153,0.08);}
+.guess-bars{display:flex;flex-direction:column;gap:10px;}
+.guess-bar-row{display:grid;grid-template-columns:92px 1fr 52px;align-items:center;gap:10px;}
+.guess-player{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.guess-track{position:relative;height:12px;border-radius:999px;background:rgba(255,255,255,0.08);overflow:hidden;}
+.guess-marker{position:absolute;top:50%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(0,0,0,0.35);}
+.guess-target-line{position:absolute;top:0;bottom:0;width:2px;background:#facc15;transform:translateX(-50%);box-shadow:0 0 10px rgba(250,204,21,0.8);}
+.guess-diff{font-size:12px;color:var(--muted);text-align:right;}
 .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 20px;font-size:13px;opacity:0;transition:all 0.25s;pointer-events:none;z-index:999;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
@@ -181,10 +188,19 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div id="reveal-guesses"></div>
   </div>
   <div class="clue-box" style="text-align:left;">
+    <div class="label" data-i18n="wl.answer">Correct value</div>
+    <div id="reveal-answer" style="font-family:var(--font-display);font-size:34px;letter-spacing:2px;color:#facc15;margin-bottom:10px;"></div>
+    <div id="reveal-bars" class="guess-bars"></div>
+  </div>
+  <div class="clue-box" style="text-align:left;">
     <div class="label" data-i18n="wl.scoreboard">Scoreboard (lower is better)</div>
     <div id="reveal-scoreboard"></div>
   </div>
   <div id="reveal-spectrum-wrap" class="spectrum-wrap">
+    <div class="spectrum-labels">
+      <span class="spectrum-label" id="reveal-label-left"></span>
+      <span class="spectrum-label" id="reveal-label-right"></span>
+    </div>
     <div class="spectrum-track readonly" id="reveal-spectrum-track">
       <div class="target-marker show" id="reveal-target-marker"></div>
       <div class="spectrum-handle" id="reveal-handle" style="cursor:default;border-color:#fff;"></div>
@@ -236,6 +252,29 @@ let sliderPos=50, currentPair=['',''], currentTarget=null;
 let roundNo=1, totalRounds=1, expectedGuesses=0, receivedGuesses=0;
 let hasLocked=false;
 let toastTimer=null, sliderSetup=false;
+
+const WL_FR_TERMS={
+  'Cold':'Froid','Hot':'Chaud','Slow':'Lent','Fast':'Rapide','Peaceful':'Paisible','Chaotic':'Chaotique','Cute':'Mignon','Terrifying':'Terrifiant',
+  'Weak':'Faible','Overpowered':'Surpuissant','Sad':'Triste','Happy':'Heureux','Boring':'Ennuyeux','Exciting':'Palpitant','Realistic':'Realiste','Fantasy':'Fantastique',
+  'Silent':'Silencieux','Loud':'Bruyant','Dark':'Sombre','Light':'Lumineux','Simple':'Simple','Complex':'Complexe','Rare':'Rare','Common':'Commun',
+  'Ugly':'Moche','Beautiful':'Beau','Small':'Petit','Huge':'Enorme','Safe':'Securise','Dangerous':'Dangereux','Dumb':'Bete','Genius':'Genie',
+  'Cowardly':'Lache','Brave':'Courageux','Lazy':'Paresseux','Hardworking':'Travailleur','Funny':'Drole','Serious':'Serieux','Natural':'Naturel','Artificial':'Artificiel',
+  'Cheap':'Bon marche','Expensive':'Cher','Soft':'Doux','Hard':'Dur','Young':'Jeune','Old':'Vieux','Love':'Amour','Hate':'Haine','Real':'Vrai','Fake':'Faux',
+  'Day':'Jour','Night':'Nuit','Hero':'Hero','Villain':'Mechant','Innocent':'Innocent','Guilty':'Coupable','Humble':'Humble','Arrogant':'Arrogant',
+  'Generous':'Genereux','Selfish':'Egoiste','Loyal':'Loyal','Traitor':'Traitre','Calm':'Calme','Aggressive':'Agressif','Lucky':'Chanceux','Unlucky':'Malchanceux',
+  'Healthy':'En forme','Sick':'Malade','Clean':'Propre','Dirty':'Sale','Introvert':'Introverti','Extrovert':'Extraverti','Overrated':'Surestime','Underrated':'Sous-estime',
+  'Mainstream':'Grand public','Niche':'De niche','Edgy':'Provocant','Wholesome':'Sain','Ancient':'Ancien','Modern':'Moderne','Trustworthy':'Fiable','Suspicious':'Suspect',
+  'Alone':'Seul','Popular':'Populaire','Normal':'Normal','Weird':'Bizarre','Friendly':'Amical','Hostile':'Hostile','Beginner':'Debutant','Expert':'Expert',
+  'Chill':'Detendu','Intense':'Intense','Side character':'Personnage secondaire','Main character':'Personnage principal',
+  'Common power':'Pouvoir commun','Legendary power':'Pouvoir legendaire','Anime filler':'Episode filler','Canon arc':'Arc canon',
+  'Weak villain':'Mechant faible','Final boss':'Boss final','Forgettable':'Oubliable','Iconic':'Iconique','Background character':'Figurant',
+  'Protagonist':'Protagoniste','Peaceful ending':'Fin paisible','Tragic ending':'Fin tragique','Cute design':'Design mignon','Intimidating design':'Design intimidant'
+};
+
+function wlLabel(v){
+  if(typeof getLang!=='function'||getLang()!=='fr') return v;
+  return WL_FR_TERMS[v]||v;
+}
 
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 function showPhase(id){document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');}
@@ -313,8 +352,10 @@ function renderGameState(msg){
   receivedGuesses=msg.received||0;
   hasLocked=false;
 
-  document.getElementById('label-left').textContent=currentPair[0];
-  document.getElementById('label-right').textContent=currentPair[1];
+  document.getElementById('label-right').textContent=wlLabel(currentPair[1]);
+  document.getElementById('label-left').textContent=wlLabel(currentPair[0]);
+  document.getElementById('reveal-label-left').textContent=wlLabel(currentPair[0]);
+  document.getElementById('reveal-label-right').textContent=wlLabel(currentPair[1]);
   updateHandle(50);
   document.getElementById('spectrum-track').classList.toggle('readonly',isPsychic);
   document.getElementById('round-info').innerHTML=t('wl.roundPsychic',{round:String(roundNo),total:String(totalRounds),name:`<b>${esc(msg.psychic||'')}</b>`});
@@ -386,6 +427,10 @@ function showReveal(msg){
   const guessEntries=Object.entries(msg.guesses||{}).sort((a,b)=>(msg.diffs?.[a[0]]||0)-(msg.diffs?.[b[0]]||0));
   document.getElementById('reveal-guesses').innerHTML=guessEntries.length
     ?guessEntries.map(([name,guess])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span>${esc(name)}</span><span>${guess}% (Δ ${msg.diffs?.[name]??0})</span></div>`).join('')
+    :`<div style="color:var(--muted);font-size:13px;">${t('wl.noPoints')}</div>`;
+  document.getElementById('reveal-answer').textContent=t('wl.answerValue',{value:String(msg.target)});
+  document.getElementById('reveal-bars').innerHTML=guessEntries.length
+    ?guessEntries.map(([name,guess])=>`<div class="guess-bar-row"><div class="guess-player">${esc(name)}</div><div class="guess-track"><div class="guess-target-line" style="left:${msg.target}%;"></div><div class="guess-marker" style="left:${guess}%;"></div></div><div class="guess-diff">Δ ${msg.diffs?.[name]??0}</div></div>`).join('')
     :`<div style="color:var(--muted);font-size:13px;">${t('wl.noPoints')}</div>`;
   document.getElementById('reveal-target-marker').style.left=msg.target+'%';
   document.getElementById('reveal-handle').style.left='50%';
