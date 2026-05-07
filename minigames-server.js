@@ -1249,17 +1249,15 @@ function handleMessage(socket, raw, playerId) {
       if (!room || room.host !== playerId || room.gameType !== 'wavelength') return;
       const wlIds = Object.keys(room.players);
       if (wlIds.length < 2) { wsSend(socket, { type: 'error', msg: 'Need at least 2 players.' }); return; }
-      const wlShuffled = shuffle([...wlIds]);
-      const wlHalf = Math.ceil(wlShuffled.length / 2);
-      room.wlTeamA = wlShuffled.slice(0, wlHalf);
-      room.wlTeamB = wlShuffled.slice(wlHalf);
-      room.wlScoreA = 0; room.wlScoreB = 0;
+      room.wlOrder = shuffle([...wlIds]);
       room.wlRound = 1;
-      room.wlPsychicIdxA = 0; room.wlPsychicIdxB = 0;
-      room.wlActiveTeam = 'A';
-      room.wlPsychicId = room.wlTeamA[0];
+      room.wlTotalRounds = room.wlOrder.length;
+      room.wlPsychicTurn = 0;
+      room.wlPsychicId = room.wlOrder[0];
+      room.wlScores = {};
+      for (const id of wlIds) room.wlScores[id] = 0;
       room.wlPhase = 'clue';
-      room.wlSlider = 50;
+      room.wlGuesses = {};
       room.phase = 'playing';
       const wlPair = WAVELENGTH_PAIRS[Math.floor(Math.random() * WAVELENGTH_PAIRS.length)];
       const wlTarget = Math.floor(Math.random() * 71) + 15;
@@ -1268,15 +1266,13 @@ function handleMessage(socket, raw, playerId) {
         const isPsychic = id === room.wlPsychicId;
         wsSend(player.socket, {
           type: 'wl_start',
-          teamA: room.wlTeamA.map(i => room.players[i]?.name),
-          teamB: room.wlTeamB.map(i => room.players[i]?.name),
-          myTeam: room.wlTeamA.includes(id) ? 'A' : 'B',
-          activeTeam: 'A',
+          round: room.wlRound,
+          totalRounds: room.wlTotalRounds,
           psychic: room.players[room.wlPsychicId]?.name,
           isPsychic,
           pair: wlPair,
           target: isPsychic ? wlTarget : null,
-          scoreA: 0, scoreB: 0, round: 1, slider: 50,
+          scores: Object.fromEntries(Object.entries(room.wlScores).map(([pid, v]) => [room.players[pid]?.name, v]).filter(([n]) => !!n)),
         });
       }
       console.log(`Room ${room.code} wavelength started`);
@@ -1287,74 +1283,113 @@ function handleMessage(socket, raw, playerId) {
       if (!room || room.wlPhase !== 'clue' || room.wlPsychicId !== playerId) return;
       const wlClue = (msg.clue || '').trim().slice(0, 60);
       if (!wlClue) return;
-      room.wlClue = wlClue; room.wlPhase = 'guessing'; room.wlSlider = 50;
-      broadcast(room, { type: 'wl_clue_given', clue: wlClue, pair: room.wlPair, slider: 50 });
+      room.wlClue = wlClue;
+      room.wlPhase = 'guessing';
+      room.wlGuesses = {};
+      const expected = Object.keys(room.players).filter(id => id !== room.wlPsychicId && room.players[id]?.socket).length;
+      broadcast(room, { type: 'wl_clue_given', clue: wlClue, pair: room.wlPair, expected });
       break;
     }
 
     case 'wl_slider': {
-      if (!room || room.wlPhase !== 'guessing') return;
-      const isActiveTeam = room.wlActiveTeam === 'A' ? room.wlTeamA.includes(playerId) : room.wlTeamB.includes(playerId);
-      if (!isActiveTeam || room.wlPsychicId === playerId) return;
-      const wlPos = Math.max(0, Math.min(100, Number(msg.pos) || 50));
-      room.wlSlider = wlPos;
-      broadcast(room, { type: 'wl_slider_update', pos: wlPos }, socket);
+      // Kept for backwards compatibility with older clients that still emit slider updates.
       break;
     }
 
     case 'wl_lock': {
       if (!room || room.wlPhase !== 'guessing') return;
-      const isActiveTeamLock = room.wlActiveTeam === 'A' ? room.wlTeamA.includes(playerId) : room.wlTeamB.includes(playerId);
-      if (!isActiveTeamLock || room.wlPsychicId === playerId) return;
-      const wlPos2 = room.wlSlider;
-      const diff = Math.abs(wlPos2 - room.wlTarget);
-      let pts = 0;
-      if (diff <= 4) pts = 4; else if (diff <= 10) pts = 3; else if (diff <= 18) pts = 2; else if (diff <= 25) pts = 1;
-      if (room.wlActiveTeam === 'A') room.wlScoreA += pts; else room.wlScoreB += pts;
+      if (room.wlPsychicId === playerId) return;
+      if (room.wlGuesses[playerId] !== undefined) return;
+
+      const wlPos2 = Math.round(Math.max(0, Math.min(100, Number(msg.pos) || 50)));
+      room.wlGuesses[playerId] = wlPos2;
+
+      const expectedIds = Object.keys(room.players).filter(id => id !== room.wlPsychicId && room.players[id]?.socket);
+      const expected = expectedIds.length;
+      const received = Object.keys(room.wlGuesses).filter(id => expectedIds.includes(id)).length;
+
+      broadcast(room, { type: 'wl_guess_progress', expected, received });
+      if (received < expected) break;
+
       room.wlPhase = 'reveal';
-      const won = room.wlScoreA >= 10 || room.wlScoreB >= 10;
+
+      const diffs = {};
+      let roundPenalty = 0;
+      for (const id of expectedIds) {
+        const guess = room.wlGuesses[id];
+        const d = Math.abs(guess - room.wlTarget);
+        diffs[id] = d;
+        roundPenalty += d;
+        room.wlScores[id] = (room.wlScores[id] || 0) + d;
+      }
+
+      const nameDiffs = Object.fromEntries(Object.entries(diffs).map(([id, d]) => [room.players[id]?.name, d]).filter(([n]) => !!n));
+      const scoreByName = Object.fromEntries(Object.entries(room.wlScores).map(([id, v]) => [room.players[id]?.name, v]).filter(([n]) => !!n));
+
+      const won = room.wlRound >= room.wlTotalRounds;
       if (won) {
         room.phase = 'result';
-        const winTeam = room.wlScoreA >= 10 ? 'A' : 'B';
-        const winnerIds = winTeam === 'A' ? room.wlTeamA : room.wlTeamB;
+        const minScore = Math.min(...Object.values(room.wlScores));
+        const winnerIds = Object.keys(room.wlScores).filter(id => room.wlScores[id] === minScore);
         const wlScores = {};
-        winnerIds.forEach(id => { const n = room.players[id]?.name; if (n) { wlScores[n] = 500; if (room.hubScores) room.hubScores[n] = (room.hubScores[n] || 0) + 500; } });
+        winnerIds.forEach(id => {
+          const n = room.players[id]?.name;
+          if (n) {
+            wlScores[n] = 500;
+            if (room.hubScores) room.hubScores[n] = (room.hubScores[n] || 0) + 500;
+          }
+        });
         if (room.hubScores) broadcast(room, { type: 'hub_scores_updated', hubScores: { ...room.hubScores } });
-        broadcast(room, { type: 'wl_reveal', pos: wlPos2, target: room.wlTarget, pts, scoreA: room.wlScoreA, scoreB: room.wlScoreB, won: true, winner: winTeam, wlScores, hubScores: { ...(room.hubScores || {}) } });
+        broadcast(room, {
+          type: 'wl_reveal',
+          target: room.wlTarget,
+          guesses: Object.fromEntries(Object.entries(room.wlGuesses).map(([id, g]) => [room.players[id]?.name, g]).filter(([n]) => !!n)),
+          diffs: nameDiffs,
+          roundPenalty,
+          scores: scoreByName,
+          won: true,
+          winners: winnerIds.map(id => room.players[id]?.name).filter(Boolean),
+          winningScore: minScore,
+          wlScores,
+          hubScores: { ...(room.hubScores || {}) },
+        });
       } else {
-        broadcast(room, { type: 'wl_reveal', pos: wlPos2, target: room.wlTarget, pts, scoreA: room.wlScoreA, scoreB: room.wlScoreB, won: false });
+        broadcast(room, {
+          type: 'wl_reveal',
+          target: room.wlTarget,
+          guesses: Object.fromEntries(Object.entries(room.wlGuesses).map(([id, g]) => [room.players[id]?.name, g]).filter(([n]) => !!n)),
+          diffs: nameDiffs,
+          roundPenalty,
+          scores: scoreByName,
+          won: false,
+        });
       }
       break;
     }
 
     case 'wl_next_round': {
       if (!room || room.host !== playerId || room.wlPhase !== 'reveal') return;
-      room.wlActiveTeam = room.wlActiveTeam === 'A' ? 'B' : 'A';
       room.wlRound++;
-      if (room.wlActiveTeam === 'A') {
-        room.wlPsychicIdxA = (room.wlPsychicIdxA + 1) % room.wlTeamA.length;
-        room.wlPsychicId = room.wlTeamA[room.wlPsychicIdxA];
-      } else {
-        room.wlPsychicIdxB = (room.wlPsychicIdxB + 1) % room.wlTeamB.length;
-        room.wlPsychicId = room.wlTeamB[room.wlPsychicIdxB];
-      }
+      room.wlPsychicTurn = (room.wlPsychicTurn + 1) % room.wlOrder.length;
+      room.wlPsychicId = room.wlOrder[room.wlPsychicTurn];
       const wlPair2 = WAVELENGTH_PAIRS[Math.floor(Math.random() * WAVELENGTH_PAIRS.length)];
       const wlTarget2 = Math.floor(Math.random() * 71) + 15;
-      room.wlPair = wlPair2; room.wlTarget = wlTarget2; room.wlClue = null; room.wlSlider = 50; room.wlPhase = 'clue';
+      room.wlPair = wlPair2;
+      room.wlTarget = wlTarget2;
+      room.wlClue = null;
+      room.wlGuesses = {};
+      room.wlPhase = 'clue';
       for (const [id, player] of Object.entries(room.players)) {
         const isPsychic = id === room.wlPsychicId;
         wsSend(player.socket, {
           type: 'wl_new_round',
-          activeTeam: room.wlActiveTeam,
-          myTeam: room.wlTeamA.includes(id) ? 'A' : 'B',
           psychic: room.players[room.wlPsychicId]?.name,
           isPsychic,
           pair: wlPair2,
           target: isPsychic ? wlTarget2 : null,
-          scoreA: room.wlScoreA, scoreB: room.wlScoreB,
-          teamA: room.wlTeamA.map(i => room.players[i]?.name),
-          teamB: room.wlTeamB.map(i => room.players[i]?.name),
-          round: room.wlRound, slider: 50,
+          round: room.wlRound,
+          totalRounds: room.wlTotalRounds,
+          scores: Object.fromEntries(Object.entries(room.wlScores).map(([pid, v]) => [room.players[pid]?.name, v]).filter(([n]) => !!n)),
         });
       }
       break;
@@ -1498,8 +1533,9 @@ function handleMessage(socket, raw, playerId) {
         if (rj.insiderId === existingId) rj.insiderId = playerId;
         if (rj.profilerTeamA) rj.profilerTeamA = rj.profilerTeamA.map(id => id === existingId ? playerId : id);
         if (rj.profilerTeamB) rj.profilerTeamB = rj.profilerTeamB.map(id => id === existingId ? playerId : id);
-        if (rj.wlTeamA) rj.wlTeamA = rj.wlTeamA.map(id => id === existingId ? playerId : id);
-        if (rj.wlTeamB) rj.wlTeamB = rj.wlTeamB.map(id => id === existingId ? playerId : id);
+        if (rj.wlOrder) rj.wlOrder = rj.wlOrder.map(id => id === existingId ? playerId : id);
+        if (rj.wlScores && rj.wlScores[existingId] !== undefined) { rj.wlScores[playerId] = rj.wlScores[existingId]; delete rj.wlScores[existingId]; }
+        if (rj.wlGuesses && rj.wlGuesses[existingId] !== undefined) { rj.wlGuesses[playerId] = rj.wlGuesses[existingId]; delete rj.wlGuesses[existingId]; }
         if (rj.wlPsychicId === existingId) rj.wlPsychicId = playerId;
       } else {
         // Re-key player under the new connection's playerId
@@ -1514,8 +1550,9 @@ function handleMessage(socket, raw, playerId) {
         if (rj.insiderId === existingId) rj.insiderId = playerId;
         if (rj.profilerTeamA) rj.profilerTeamA = rj.profilerTeamA.map(id => id === existingId ? playerId : id);
         if (rj.profilerTeamB) rj.profilerTeamB = rj.profilerTeamB.map(id => id === existingId ? playerId : id);
-        if (rj.wlTeamA) rj.wlTeamA = rj.wlTeamA.map(id => id === existingId ? playerId : id);
-        if (rj.wlTeamB) rj.wlTeamB = rj.wlTeamB.map(id => id === existingId ? playerId : id);
+        if (rj.wlOrder) rj.wlOrder = rj.wlOrder.map(id => id === existingId ? playerId : id);
+        if (rj.wlScores && rj.wlScores[existingId] !== undefined) { rj.wlScores[playerId] = rj.wlScores[existingId]; delete rj.wlScores[existingId]; }
+        if (rj.wlGuesses && rj.wlGuesses[existingId] !== undefined) { rj.wlGuesses[playerId] = rj.wlGuesses[existingId]; delete rj.wlGuesses[existingId]; }
         if (rj.wlPsychicId === existingId) rj.wlPsychicId = playerId;
       }
       const rjIsHost = rj.host === playerId;
@@ -1581,22 +1618,23 @@ function handleMessage(socket, raw, playerId) {
       } else if (rj.gameType === 'wavelength' && rj.wlPhase) {
         const nameMap = Object.fromEntries(Object.entries(rj.players).map(([id, p]) => [id, p.name]));
         const isPsychic = rj.wlPsychicId === playerId;
+        const scoreByName = Object.fromEntries(Object.entries(rj.wlScores || {}).map(([id, v]) => [nameMap[id], v]).filter(([n]) => !!n));
+        const expected = Object.keys(rj.players).filter(id => id !== rj.wlPsychicId && rj.players[id]?.socket).length;
+        const received = Object.keys(rj.wlGuesses || {}).length;
         wsSend(socket, {
           type: 'wl_rejoin',
           code: rjCode, name: rjName, isHost: rjIsHost,
-          myTeam: rj.wlTeamA.includes(playerId) ? 'A' : 'B',
           isPsychic,
-          activeTeam: rj.wlActiveTeam,
           psychic: nameMap[rj.wlPsychicId],
           pair: rj.wlPair,
           target: isPsychic ? rj.wlTarget : null,
-          slider: rj.wlSlider,
           clue: rj.wlClue,
           wlPhase: rj.wlPhase,
-          scoreA: rj.wlScoreA || 0,
-          scoreB: rj.wlScoreB || 0,
-          teamA: rj.wlTeamA.map(id => nameMap[id]).filter(Boolean),
-          teamB: rj.wlTeamB.map(id => nameMap[id]).filter(Boolean),
+          round: rj.wlRound || 1,
+          totalRounds: rj.wlTotalRounds || Object.keys(rj.players).length,
+          scores: scoreByName,
+          expected,
+          received,
           players: Object.values(rj.players).map(p => p.name),
         });
         broadcast(rj, { type: 'player_online', name: rjName }, socket);

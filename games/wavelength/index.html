@@ -92,7 +92,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <div class="phase active" id="phase-mp-waiting">
   <a class="back-btn" id="waiting-back-btn" href="#" onclick="hubLeave();return false;" style="display:none;" data-i18n="backLobby">← LOBBY</a>
   <div class="section-title">📡 <span style="color:var(--accent)" data-i18n="wl.title">WAVELENGTH</span></div>
-  <div style="font-size:13px;color:var(--muted);margin-bottom:1.5rem;" data-i18n="wl.subtitle">First team to 10 pts wins</div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:1.5rem;" data-i18n="wl.subtitle">Lowest total score wins · Psychic rotates each round</div>
   <div class="label">Players (<span id="waiting-count">0</span>)</div>
   <div id="waiting-player-list" class="player-lobby-list"></div>
   <div id="waiting-hub-scores-section" style="display:none;margin-bottom:1.5rem;">
@@ -113,18 +113,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <div class="phase" id="phase-game">
   <button class="back-btn" id="game-cancel-btn" onclick="cancelGame()" style="display:none;" data-i18n="cancelUpper">✕ CANCEL</button>
 
-  <!-- Scores -->
-  <div class="teams-grid">
-    <div class="team-box a">
-      <div class="team-label a" data-i18n="wl.teamA">TEAM A</div>
-      <div class="team-score a"><span id="score-a">0</span><span style="font-size:14px;color:var(--muted);font-family:var(--font-body);">/10</span></div>
-      <div id="members-a" style="font-size:11px;color:var(--muted);"></div>
-    </div>
-    <div class="team-box b">
-      <div class="team-label b" data-i18n="wl.teamB">TEAM B</div>
-      <div class="team-score b"><span id="score-b">0</span><span style="font-size:14px;color:var(--muted);font-family:var(--font-body);">/10</span></div>
-      <div id="members-b" style="font-size:11px;color:var(--muted);"></div>
-    </div>
+  <div class="clue-box" style="text-align:left;">
+    <div class="label" data-i18n="wl.scoreboard">Scoreboard (lower is better)</div>
+    <div id="game-scoreboard"></div>
   </div>
 
   <!-- Active team / psychic -->
@@ -181,25 +172,19 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <!-- REVEAL -->
 <div class="phase" id="phase-reveal">
   <div style="text-align:center;margin-bottom:2rem;">
-    <div class="label" data-i18n="wl.pointsScored">Points scored</div>
+    <div class="label" data-i18n="wl.roundPenalty">Round penalty</div>
     <div class="pts-badge" id="reveal-pts"></div>
     <div id="reveal-sub" style="font-size:13px;color:var(--muted);margin-top:8px;"></div>
   </div>
-  <div class="teams-grid">
-    <div class="team-box a">
-      <div class="team-label a" data-i18n="wl.teamA">TEAM A</div>
-      <div class="team-score a"><span id="reveal-score-a">0</span><span style="font-size:14px;color:var(--muted);font-family:var(--font-body);">/10</span></div>
-    </div>
-    <div class="team-box b">
-      <div class="team-label b" data-i18n="wl.teamB">TEAM B</div>
-      <div class="team-score b"><span id="reveal-score-b">0</span><span style="font-size:14px;color:var(--muted);font-family:var(--font-body);">/10</span></div>
-    </div>
+  <div class="clue-box" style="text-align:left;">
+    <div class="label" data-i18n="wl.roundGuesses">Round guesses</div>
+    <div id="reveal-guesses"></div>
+  </div>
+  <div class="clue-box" style="text-align:left;">
+    <div class="label" data-i18n="wl.scoreboard">Scoreboard (lower is better)</div>
+    <div id="reveal-scoreboard"></div>
   </div>
   <div id="reveal-spectrum-wrap" class="spectrum-wrap">
-    <div class="spectrum-labels">
-      <span class="spectrum-label" id="reveal-label-left"></span>
-      <span class="spectrum-label" id="reveal-label-right"></span>
-    </div>
     <div class="spectrum-track readonly" id="reveal-spectrum-track">
       <div class="target-marker show" id="reveal-target-marker"></div>
       <div class="spectrum-handle" id="reveal-handle" style="cursor:default;border-color:#fff;"></div>
@@ -218,15 +203,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div id="result-winner" style="font-family:var(--font-display);font-size:52px;letter-spacing:3px;"></div>
     <div id="result-sub2" style="font-size:13px;color:var(--muted);margin-top:4px;"></div>
   </div>
-  <div class="teams-grid">
-    <div class="team-box a">
-      <div class="team-label a" data-i18n="wl.teamA">TEAM A</div>
-      <div class="team-score a" id="final-score-a">0</div>
-    </div>
-    <div class="team-box b">
-      <div class="team-label b" data-i18n="wl.teamB">TEAM B</div>
-      <div class="team-score b" id="final-score-b">0</div>
-    </div>
+  <div class="clue-box" style="text-align:left;">
+    <div class="label" data-i18n="wl.finalScores">Final scores (lowest wins)</div>
+    <div id="result-final-scores"></div>
   </div>
   <div style="margin-bottom:1.5rem;">
     <div class="label" data-i18n="pointsEarned">Points earned</div>
@@ -252,14 +231,24 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 // ── State ──────────────────────────────────────────────────────
 let ws=null, myRoom='', myName='', isHost=false, hubFlow=false, hubScores={}, hostName='';
 let mpPlayers=[], reconnectAttempts=0;
-let myTeam='', isPsychic=false, isActiveTeam=false;
-let activeTeam='A', sliderPos=50, currentPair=['',''], currentTarget=null;
+let isPsychic=false;
+let sliderPos=50, currentPair=['',''], currentTarget=null;
+let roundNo=1, totalRounds=1, expectedGuesses=0, receivedGuesses=0;
+let hasLocked=false;
 let toastTimer=null, sliderSetup=false;
 
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 function showPhase(id){document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');}
 function notify(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2800);}
 function cancelGame(){mpSend({type:'cancel_round'});}
+
+function renderScoreboard(id,scores){
+  const el=document.getElementById(id);
+  const entries=Object.entries(scores||{}).sort((a,b)=>a[1]-b[1]);
+  el.innerHTML=entries.length
+    ?entries.map(([n,p],i)=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span>${i+1}. ${esc(n)}</span><span style="color:var(--accent);font-weight:700;">${p}</span></div>`).join('')
+    :`<div style="color:var(--muted);font-size:13px;">${t('wl.noPoints')}</div>`;
+}
 
 // ── Waiting screen ─────────────────────────────────────────────
 function renderWaitingScreen(msg){
@@ -298,11 +287,10 @@ function setupSlider(){
     handle.style.left=pos+'%';
     const pct=document.getElementById('slider-pct');
     if(pct){pct.textContent=Math.round(pos)+'%';pct.style.left=pos+'%';}
-    mpSend({type:'wl_slider',pos});
   }
   let dragging=false;
-  handle.addEventListener('pointerdown',e=>{if(!isActiveTeam||isPsychic)return;dragging=true;handle.setPointerCapture(e.pointerId);});
-  track.addEventListener('pointerdown',e=>{if(!isActiveTeam||isPsychic)return;dragging=true;setPos(e.clientX);});
+  handle.addEventListener('pointerdown',e=>{if(isPsychic||hasLocked)return;dragging=true;handle.setPointerCapture(e.pointerId);});
+  track.addEventListener('pointerdown',e=>{if(isPsychic||hasLocked)return;dragging=true;setPos(e.clientX);});
   document.addEventListener('pointermove',e=>{if(dragging){setPos(e.clientX);}});
   document.addEventListener('pointerup',()=>{dragging=false;});
 }
@@ -316,26 +304,21 @@ function updateHandle(pos){
 
 // ── Game ───────────────────────────────────────────────────────
 function renderGameState(msg){
-  myTeam=msg.myTeam; isPsychic=msg.isPsychic; activeTeam=msg.activeTeam;
-  isActiveTeam=myTeam===activeTeam;
-  currentPair=msg.pair||['?','?']; currentTarget=msg.target;
-  sliderPos=msg.slider||50;
+  isPsychic=!!msg.isPsychic;
+  currentPair=msg.pair||['?','?'];
+  currentTarget=msg.target;
+  roundNo=msg.round||1;
+  totalRounds=msg.totalRounds||1;
+  expectedGuesses=msg.expected||0;
+  receivedGuesses=msg.received||0;
+  hasLocked=false;
 
   document.getElementById('label-left').textContent=currentPair[0];
   document.getElementById('label-right').textContent=currentPair[1];
-  document.getElementById('reveal-label-left').textContent=currentPair[0];
-  document.getElementById('reveal-label-right').textContent=currentPair[1];
-  updateHandle(sliderPos);
-  document.getElementById('spectrum-handle').style.left=sliderPos+'%';
-  document.getElementById('spectrum-track').classList.toggle('readonly',!isActiveTeam||isPsychic);
-
-  document.getElementById('score-a').textContent=msg.scoreA||0;
-  document.getElementById('score-b').textContent=msg.scoreB||0;
-  if(msg.teamA) document.getElementById('members-a').textContent=msg.teamA.join(', ');
-  if(msg.teamB) document.getElementById('members-b').textContent=msg.teamB.join(', ');
-
-  const teamColor=activeTeam==='A'?'var(--team-a)':'var(--team-b)';
-  document.getElementById('round-info').innerHTML=t('wl.teamTurnPsychic',{team:`<span style="color:${teamColor};font-weight:700;">${activeTeam}</span>`,name:esc(msg.psychic)});
+  updateHandle(50);
+  document.getElementById('spectrum-track').classList.toggle('readonly',isPsychic);
+  document.getElementById('round-info').innerHTML=t('wl.roundPsychic',{round:String(roundNo),total:String(totalRounds),name:`<b>${esc(msg.psychic||'')}</b>`});
+  renderScoreboard('game-scoreboard',msg.scores||{});
 
   if(isPsychic){
     document.getElementById('target-reveal-box').style.display='block';
@@ -349,12 +332,8 @@ function renderGameState(msg){
   }
   document.getElementById('clue-box').style.display='none';
   document.getElementById('guesser-area').style.display='none';
-  document.getElementById('waiting-clue').style.display='none';
+  document.getElementById('waiting-clue').style.display=isPsychic?'none':'block';
   document.getElementById('waiting-guess').style.display='none';
-  if(!isPsychic){
-    if(isActiveTeam){ document.getElementById('waiting-clue').style.display='block'; }
-    else { document.getElementById('waiting-guess').style.display='block'; document.getElementById('waiting-guess').textContent=t('wl.waitingTeam',{team:activeTeam}); }
-  }
   document.getElementById('game-cancel-btn').style.display=isHost?'inline-flex':'none';
   showPhase('phase-game');
 }
@@ -371,34 +350,46 @@ function submitClue(){
 }
 
 function onClueGiven(msg){
+  expectedGuesses=msg.expected||expectedGuesses;
+  receivedGuesses=msg.received||0;
   document.getElementById('clue-box').style.display='block';
   document.getElementById('clue-display').textContent=msg.clue;
   document.getElementById('waiting-clue').style.display='none';
   document.getElementById('psychic-input-area').style.display='none';
-  if(isActiveTeam&&!isPsychic){
+  if(!isPsychic){
     document.getElementById('guesser-area').style.display='block';
     document.getElementById('spectrum-track').classList.remove('readonly');
   }
 }
 
+function onGuessProgress(msg){
+  expectedGuesses=msg.expected||expectedGuesses;
+  receivedGuesses=msg.received||receivedGuesses;
+  if(!isPsychic){
+    document.getElementById('waiting-guess').style.display='block';
+    document.getElementById('waiting-guess').textContent=t('wl.waitingGuesses',{received:String(receivedGuesses),expected:String(expectedGuesses)});
+  }
+}
+
 function lockGuess(){
+  hasLocked=true;
   document.getElementById('guesser-area').style.display='none';
   document.getElementById('waiting-guess').style.display='block';
   document.getElementById('waiting-guess').textContent=t('wl.lockedIn');
   document.getElementById('spectrum-track').classList.add('readonly');
-  mpSend({type:'wl_lock'});
+  mpSend({type:'wl_lock',pos:Math.round(sliderPos)});
 }
 
 function showReveal(msg){
-  document.getElementById('reveal-pts').textContent='+'+msg.pts+' pts';
-  document.getElementById('reveal-sub').textContent=
-    msg.pts===4?t('wl.bullseye'):msg.pts===3?t('wl.veryClose'):msg.pts===2?t('wl.close'):msg.pts===1?t('wl.almost'):t('wl.miss');
-  document.getElementById('reveal-score-a').textContent=msg.scoreA||0;
-  document.getElementById('reveal-score-b').textContent=msg.scoreB||0;
-  const rh=document.getElementById('reveal-handle');
-  const rt=document.getElementById('reveal-target-marker');
-  rh.style.left=msg.pos+'%';
-  rt.style.left=msg.target+'%';
+  document.getElementById('reveal-pts').textContent=msg.roundPenalty;
+  document.getElementById('reveal-sub').textContent=t('wl.roundPenalty');
+  const guessEntries=Object.entries(msg.guesses||{}).sort((a,b)=>(msg.diffs?.[a[0]]||0)-(msg.diffs?.[b[0]]||0));
+  document.getElementById('reveal-guesses').innerHTML=guessEntries.length
+    ?guessEntries.map(([name,guess])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span>${esc(name)}</span><span>${guess}% (Δ ${msg.diffs?.[name]??0})</span></div>`).join('')
+    :`<div style="color:var(--muted);font-size:13px;">${t('wl.noPoints')}</div>`;
+  document.getElementById('reveal-target-marker').style.left=msg.target+'%';
+  document.getElementById('reveal-handle').style.left='50%';
+  renderScoreboard('reveal-scoreboard',msg.scores||{});
   document.getElementById('reveal-host-next').style.display=isHost?'block':'none';
   document.getElementById('reveal-guest-next').style.display=isHost?'none':'block';
   showPhase('phase-reveal');
@@ -407,13 +398,11 @@ function showReveal(msg){
 function nextRound(){mpSend({type:'wl_next_round'});}
 
 function showResult(msg){
-  const winTeam=msg.winner;
-  const winColor=winTeam==='A'?'var(--team-a)':'var(--team-b)';
-  document.getElementById('result-winner').textContent=t('wl.teamWins',{team:winTeam});
-  document.getElementById('result-winner').style.color=winColor;
-  document.getElementById('result-sub2').textContent=t('wl.firstTo10');
-  document.getElementById('final-score-a').textContent=msg.scoreA||0;
-  document.getElementById('final-score-b').textContent=msg.scoreB||0;
+  const winners=(msg.winners||[]).join(', ');
+  document.getElementById('result-winner').textContent=winners||'-';
+  document.getElementById('result-winner').style.color='var(--accent)';
+  document.getElementById('result-sub2').textContent=t('wl.lowestScoreWins',{score:String(msg.winningScore||0)});
+  renderScoreboard('result-final-scores',msg.scores||{});
   const scores=msg.wlScores||{};
   document.getElementById('result-scores').innerHTML=Object.keys(scores).length
     ?Object.entries(scores).map(([n,p])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span>${esc(n)}</span><span style="color:var(--accent);font-weight:700;">+${p} pts</span></div>`).join('')
@@ -454,10 +443,10 @@ function handleMsg(msg){
       setupSlider();
       renderGameState(msg);
       if(msg.wlPhase==='guessing'||msg.wlPhase==='reveal'){
-        onClueGiven({clue:msg.clue,pair:msg.pair,slider:msg.slider});
+        onClueGiven({clue:msg.clue,expected:msg.expected,received:msg.received});
       }
-      if(msg.wlPhase==='reveal'){
-        showReveal({pos:msg.slider,target:msg.target,scoreA:msg.scoreA,scoreB:msg.scoreB,won:false});
+      if(msg.wlPhase==='guessing'){
+        onGuessProgress({expected:msg.expected,received:msg.received});
       }
       break;
     }
@@ -486,8 +475,8 @@ function handleMsg(msg){
       renderGameState(msg); break;
     case 'wl_clue_given':
       onClueGiven(msg); break;
-    case 'wl_slider_update':
-      updateHandle(msg.pos); break;
+    case 'wl_guess_progress':
+      onGuessProgress(msg); break;
     case 'wl_reveal':
       if(msg.won){ localStorage.removeItem('wl_session'); showResult(msg); } else { showReveal(msg); } break;
     case 'back_to_lobby': showPhase('phase-mp-waiting'); break;
