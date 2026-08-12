@@ -1523,6 +1523,7 @@ function handleMessage(socket, raw, playerId) {
         const champ = GUESS_IT_LOL[Math.floor(Math.random() * GUESS_IT_LOL.length)];
         let cat = giLolCategory;
         if (cat === 'anything') { const opts = ['champion','passive','q','w','e','r']; cat = opts[Math.floor(Math.random() * opts.length)]; }
+        if (cat === 'spells')   { const opts = ['q','w','e','r'];                      cat = opts[Math.floor(Math.random() * opts.length)]; }
         giAnswerContext = { champion: champ.name, type: cat };
         if (cat === 'champion') giAnswer = champ.name;
         else if (cat === 'passive') giAnswer = champ.passive;

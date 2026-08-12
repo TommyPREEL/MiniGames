@@ -213,6 +213,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <button class="lol-cat-btn active" data-cat="anything" onclick="selectOfflineLolCat('anything',this)" data-i18n="gi.lolCatAnything">🎲 Anything</button>
       <button class="lol-cat-btn" data-cat="champion" onclick="selectOfflineLolCat('champion',this)" data-i18n="gi.lolCatChampion">👤 Champion</button>
       <button class="lol-cat-btn" data-cat="passive" onclick="selectOfflineLolCat('passive',this)" data-i18n="gi.lolCatPassive">⚡ Passive</button>
+      <button class="lol-cat-btn" data-cat="spells" onclick="selectOfflineLolCat('spells',this)" data-i18n="gi.lolCatSpells">💫 All Spells</button>
       <button class="lol-cat-btn" id="offline-slot-q" data-cat="q" onclick="selectOfflineLolCat('q',this)"></button>
       <button class="lol-cat-btn" id="offline-slot-w" data-cat="w" onclick="selectOfflineLolCat('w',this)"></button>
       <button class="lol-cat-btn" data-cat="e" onclick="selectOfflineLolCat('e',this)">E Spell</button>
@@ -291,6 +292,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         <button class="lol-cat-btn active" data-cat="anything" onclick="selectMpLolCat('anything',this)" data-i18n="gi.lolCatAnything">🎲 Anything</button>
         <button class="lol-cat-btn" data-cat="champion" onclick="selectMpLolCat('champion',this)" data-i18n="gi.lolCatChampion">👤 Champion</button>
         <button class="lol-cat-btn" data-cat="passive" onclick="selectMpLolCat('passive',this)" data-i18n="gi.lolCatPassive">⚡ Passive</button>
+        <button class="lol-cat-btn" data-cat="spells" onclick="selectMpLolCat('spells',this)" data-i18n="gi.lolCatSpells">💫 All Spells</button>
         <button class="lol-cat-btn" id="mp-slot-q" data-cat="q" onclick="selectMpLolCat('q',this)"></button>
         <button class="lol-cat-btn" id="mp-slot-w" data-cat="w" onclick="selectMpLolCat('w',this)"></button>
         <button class="lol-cat-btn" data-cat="e" onclick="selectMpLolCat('e',this)">E Spell</button>
@@ -517,6 +519,7 @@ async function offlineGenerate(){
       const champ=lolChampions[Math.floor(Math.random()*lolChampions.length)];
       let cat=offLolCat;
       if(cat==='anything'){const opts=['champion','passive','q','w','e','r'];cat=opts[Math.floor(Math.random()*opts.length)];}
+      if(cat==='spells'){const opts=['q','w','e','r'];cat=opts[Math.floor(Math.random()*opts.length)];}
         name=cat==='champion'?champ.name:cat==='passive'?champ.passive:champ.spells[['q','w','e','r'].indexOf(cat)];
         context=lolContext(cat,champ.name);
     }

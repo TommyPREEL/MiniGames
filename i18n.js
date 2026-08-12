@@ -452,6 +452,7 @@ en: {
   'gi.lolCatAnything': '🎲 Anything',
   'gi.lolCatChampion': '👤 Champion',
   'gi.lolCatPassive': '⚡ Passive',
+  'gi.lolCatSpells': '💫 All Spells',
 },
 
 // ─── FRENCH ───────────────────────────────────────────────────
@@ -904,11 +905,12 @@ fr: {
   'gi.lolCatAnything': '🎲 N’importe quoi',
   'gi.lolCatChampion': '👤 Champion',
   'gi.lolCatPassive': '⚡ Passif',
+  'gi.lolCatSpells': '💫 Tous les sorts',
 },
 };
 
 // ─── Engine ──────────────────────────────────────────────────
-let _lang = localStorage.getItem('uc_lang') || 'en';
+let _lang = localStorage.getItem('uc_lang') || (navigator.language && navigator.language.startsWith('fr') ? 'fr' : 'en');
 
 function t(key, params) {
   let s = (LANGS[_lang] && LANGS[_lang][key]) || LANGS.en[key] || key;
