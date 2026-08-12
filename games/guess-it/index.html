@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Guess It</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="/i18n.js"></script>
+<style>
+:root{
+  --bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a26;--surface3:#22223a;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --text:#f0f0f8;--muted:#7a7a9a;
+  --accent:#f97316;--valid:#4ade80;--invalid:#f87171;
+  --poke:#FFCB05;--lol:#C8AA6E;--free:#a855f7;
+  --font-display:'Bebas Neue',sans-serif;--font-body:'Syne',sans-serif;
+  --radius:12px;--radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(249,115,22,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(249,115,22,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;opacity:0.22;}
+.orb-1{width:400px;height:400px;background:var(--accent);top:-120px;right:-100px;}
+.orb-2{width:300px;height:300px;background:#7c3aed;bottom:-60px;left:-80px;}
+.container{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:1.5rem 1.25rem 5rem;}
+.phase{display:none;}.phase.active{display:block;animation:fadeUp 0.3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;background:transparent;border:none;cursor:pointer;padding:8px 0;margin-bottom:1.5rem;transition:color 0.15s;text-decoration:none;font-family:var(--font-body);}
+.back-btn:hover{color:var(--text);}
+.logo{font-family:var(--font-display);font-size:60px;line-height:0.9;letter-spacing:2px;margin-bottom:4px;}
+.logo span{color:var(--accent);}
+.tagline{font-size:12px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2rem;}
+.label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;font-weight:600;}
+.section-title{font-family:var(--font-display);font-size:40px;letter-spacing:2px;margin-bottom:4px;}
+.section-sub{font-size:13px;color:var(--muted);margin-bottom:1.5rem;}
+
+/* Theme selector */
+.theme-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.5rem;}
+.theme-btn{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:14px 8px;cursor:pointer;text-align:center;transition:all 0.15s;color:var(--text);font-family:var(--font-body);display:flex;flex-direction:column;gap:4px;align-items:center;}
+.theme-icon{font-size:24px;}
+.theme-name{font-family:var(--font-display);font-size:15px;letter-spacing:1px;}
+.theme-btn:hover{border-color:var(--border2);background:var(--surface2);}
+.theme-btn[data-theme="pokemon"].active{border-color:var(--poke);background:rgba(255,203,5,0.07);color:var(--poke);}
+.theme-btn[data-theme="lol"].active{border-color:var(--lol);background:rgba(200,170,110,0.07);color:var(--lol);}
+.theme-btn[data-theme="free"].active{border-color:var(--free);background:rgba(168,85,247,0.07);color:var(--free);}
+
+/* LoL category */
+.lol-cat-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:1.5rem;}
+.lol-cat-btn{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;letter-spacing:.06em;cursor:pointer;color:var(--muted);transition:all 0.15s;font-family:var(--font-body);}
+.lol-cat-btn:hover{border-color:var(--border2);color:var(--text);}
+.lol-cat-btn.active{border-color:var(--lol);color:var(--lol);background:rgba(200,170,110,0.08);}
+
+/* Answer input */
+.answer-input-wrap{position:relative;margin-bottom:1.5rem;}
+.answer-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px 48px 12px 14px;color:var(--text);font-family:var(--font-body);font-size:15px;outline:none;transition:border-color 0.15s;}
+.answer-input:focus{border-color:var(--accent);}
+.answer-input::placeholder{color:var(--muted);}
+.answer-input.hidden-val{color:transparent;text-shadow:0 0 8px var(--text);}
+
+/* Reveal card */
+.reveal-card{border:2px solid var(--border2);border-radius:var(--radius);padding:2rem 1.5rem;text-align:center;margin-bottom:1.5rem;position:relative;overflow:hidden;transition:all 0.3s;}
+.reveal-card.theme-pokemon{border-color:rgba(255,203,5,0.35);background:rgba(255,203,5,0.04);}
+.reveal-card.theme-lol{border-color:rgba(200,170,110,0.35);background:rgba(200,170,110,0.04);}
+.reveal-card.theme-free{border-color:rgba(168,85,247,0.35);background:rgba(168,85,247,0.04);}
+.reveal-hidden{cursor:pointer;}
+.reveal-question{font-family:var(--font-display);font-size:80px;color:var(--border2);letter-spacing:4px;line-height:1;margin-bottom:.5rem;}
+.reveal-hint{font-size:13px;color:var(--muted);}
+.reveal-context{font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.reveal-context.pokemon-ctx{color:var(--poke);}
+.reveal-context.lol-ctx{color:var(--lol);}
+.reveal-context.free-ctx{color:var(--free);}
+.reveal-name{font-family:var(--font-display);font-size:52px;letter-spacing:2px;line-height:1;margin-bottom:4px;}
+.reveal-name.pokemon-name{color:var(--poke);}
+.reveal-name.lol-name{color:var(--lol);}
+.reveal-name.free-name{color:var(--free);}
+
+/* Buttons */
+.btn-primary{width:100%;padding:16px;background:var(--accent);border:none;border-radius:var(--radius);color:#fff;font-family:var(--font-display);font-size:22px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;}
+.btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px);}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.btn-secondary{width:100%;padding:14px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--font-body);font-size:15px;font-weight:500;cursor:pointer;transition:all 0.15s;margin-top:10px;}
+.btn-secondary:hover{background:var(--surface2);border-color:var(--accent);}
+.btn-ghost{width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all 0.15s;margin-top:8px;}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text);}
+
+/* Waiting room */
+.player-list{display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem;}
+.player-item{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;font-size:14px;font-weight:500;}
+.you-tag{font-size:10px;background:rgba(249,115,22,0.12);color:var(--accent);border:1px solid rgba(249,115,22,0.25);border-radius:20px;padding:2px 8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-left:auto;}
+.host-crown{color:#f5c542;font-size:16px;}
+.waiting-msg{text-align:center;color:var(--muted);font-size:14px;padding:12px;animation:pulse 1.5s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+/* Playing phase */
+.role-banner{border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:1.5rem;font-size:13px;font-weight:600;}
+.role-banner.is-guesseur{background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.3);color:var(--accent);}
+.role-banner.is-player{background:rgba(255,255,255,0.04);border:1px solid var(--border2);color:var(--muted);}
+.answer-box{background:rgba(249,115,22,0.07);border:1px solid rgba(249,115,22,0.3);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:1rem;display:flex;align-items:baseline;gap:10px;}
+.answer-box-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700;white-space:nowrap;}
+.answer-box-value{font-family:var(--font-display);font-size:28px;letter-spacing:1px;color:var(--text);line-height:1;}
+.answer-box-context{font-size:11px;color:var(--muted);margin-left:auto;white-space:nowrap;}
+.hint-input-row{display:flex;gap:8px;margin-bottom:1.5rem;}
+.hint-input{flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color 0.15s;}
+.hint-input:focus{border-color:var(--accent);}
+.hint-input::placeholder{color:var(--muted);}
+.hint-send-btn{padding:10px 16px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font-display);font-size:16px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.hint-send-btn:hover{filter:brightness(1.1);}
+.hint-send-btn.propose{background:transparent;border:1px solid var(--border2);color:var(--text);}
+.hint-send-btn.propose:hover{border-color:var(--accent);color:var(--accent);}
+
+/* Hint board */
+.hints-section{margin-bottom:1.5rem;}
+.hints-empty{color:var(--muted);font-size:13px;text-align:center;padding:1.5rem;border:1px dashed var(--border);border-radius:var(--radius-sm);}
+.hint-list{display:flex;flex-direction:column;gap:8px;}
+.hint-item{border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;background:var(--surface);animation:fadeUp 0.2s ease;}
+.hint-item.type-guesseur{border-color:rgba(249,115,22,0.25);background:rgba(249,115,22,0.04);}
+.hint-item.state-valid{border-color:rgba(74,222,128,0.25);background:rgba(74,222,128,0.04);}
+.hint-item.state-invalid{border-color:rgba(248,113,113,0.2);background:rgba(248,113,113,0.03);opacity:.7;}
+.hint-item.state-pending{border-color:rgba(255,255,255,0.12);}
+.hint-top{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.hint-author{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+.hint-author.guesseur-author{color:var(--accent);}
+.hint-author.player-author{color:var(--muted);}
+.hint-badge{font-size:10px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:10px;}
+.hint-badge.badge-guesseur{background:rgba(249,115,22,0.15);color:var(--accent);}
+.hint-badge.badge-valid{background:rgba(74,222,128,0.12);color:var(--valid);}
+.hint-badge.badge-invalid{background:rgba(248,113,113,0.12);color:var(--invalid);}
+.hint-badge.badge-pending{background:rgba(255,255,255,0.06);color:var(--muted);}
+.hint-actions{margin-left:auto;display:flex;gap:4px;align-items:center;flex-shrink:0;}
+.hint-action-btn{background:none;border:1px solid transparent;border-radius:6px;cursor:pointer;padding:3px 7px;font-size:13px;transition:all 0.15s;line-height:1;}
+.hint-action-btn.validate{color:#4ade80;}.hint-action-btn.validate:hover{border-color:#4ade80;background:rgba(74,222,128,0.1);}
+.hint-action-btn.invalidate{color:#f87171;}.hint-action-btn.invalidate:hover{border-color:#f87171;background:rgba(248,113,113,0.1);}
+.hint-action-btn.del{color:var(--muted);}.hint-action-btn.del:hover{color:#f87171;border-color:#f87171;}
+.hint-text{font-size:14px;color:var(--text);line-height:1.5;}
+.hint-text.crossed{text-decoration:line-through;color:var(--muted);}
+
+/* End game button */
+.end-game-area{border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;background:var(--surface);margin-bottom:1rem;}
+.end-game-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.winner-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:8px;}
+.winner-btn{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 8px;font-family:var(--font-body);font-size:13px;font-weight:600;cursor:pointer;color:var(--text);transition:all 0.15s;}
+.winner-btn:hover{border-color:var(--valid);color:var(--valid);background:rgba(74,222,128,0.08);}
+.nobody-btn{width:100%;padding:10px;background:transparent;border:1px dashed var(--border2);border-radius:var(--radius-sm);color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all 0.15s;}
+.nobody-btn:hover{border-color:var(--invalid);color:var(--invalid);}
+
+/* Result screen */
+.result-hero{border-radius:var(--radius);padding:2rem 1.5rem;text-align:center;margin-bottom:1.5rem;}
+.result-hero.has-winner{background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.3);}
+.result-hero.no-winner{background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.3);}
+.result-label{font-size:11px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px;}
+.has-winner .result-label{color:var(--valid);}
+.no-winner .result-label{color:var(--invalid);}
+.result-winner{font-family:var(--font-display);font-size:52px;letter-spacing:3px;line-height:1;margin-bottom:6px;}
+.has-winner .result-winner{color:var(--valid);}
+.no-winner .result-winner{color:var(--invalid);}
+.result-answer-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;margin-top:1.5rem;}
+.result-answer{font-family:var(--font-display);font-size:48px;letter-spacing:2px;margin-bottom:4px;}
+.result-answer.pokemon-ans{color:var(--poke);}
+.result-answer.lol-ans{color:var(--lol);}
+.result-answer.free-ans{color:var(--free);}
+.result-context{font-size:12px;color:var(--muted);margin-bottom:.5rem;}
+
+/* Hub scores in result */
+.scores-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1.5rem;}
+.scores-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.scores-row:last-child{border-bottom:none;}
+.scores-rank{color:var(--muted);font-size:11px;min-width:18px;}
+.scores-pts{color:#f5c542;font-weight:700;margin-left:auto;}
+
+/* Toast */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 20px;font-size:13px;opacity:0;transition:all .25s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* Free mode waiting */
+.free-wait-card{border:2px dashed var(--border2);border-radius:var(--radius);padding:2rem;text-align:center;margin-bottom:1.5rem;}
+.free-wait-icon{font-size:48px;margin-bottom:.75rem;}
+.free-wait-title{font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:var(--muted);margin-bottom:6px;}
+.free-wait-sub{font-size:13px;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div id="toast-el" class="toast"></div>
+<div class="container">
+
+<!-- ══════════════════════════════════════════════════════════
+     OFFLINE MODE
+══════════════════════════════════════════════════════════════ -->
+<div class="phase" id="phase-offline">
+  <a class="back-btn" href="/">← BACK</a>
+  <div class="logo">GUESS<span>IT</span></div>
+  <div class="tagline">RANDOMIZER — LOCAL PLAY</div>
+
+  <div class="label">Theme</div>
+  <div class="theme-row">
+    <button class="theme-btn active" data-theme="pokemon" onclick="selectOfflineTheme('pokemon',this)">
+      <span class="theme-icon">🎮</span><span class="theme-name">POKÉMON</span>
+    </button>
+    <button class="theme-btn" data-theme="lol" onclick="selectOfflineTheme('lol',this)">
+      <span class="theme-icon">⚔️</span><span class="theme-name">LEAGUE</span>
+    </button>
+    <button class="theme-btn" data-theme="free" onclick="selectOfflineTheme('free',this)">
+      <span class="theme-icon">✨</span><span class="theme-name">FREE</span>
+    </button>
+  </div>
+
+  <!-- LoL category -->
+  <div id="offline-lol-cat" style="display:none;">
+    <div class="label" data-i18n="category">Category</div>
+    <div class="lol-cat-row" id="offline-lol-cat-row">
+      <button class="lol-cat-btn active" data-cat="anything" onclick="selectOfflineLolCat('anything',this)" data-i18n="gi.lolCatAnything">🎲 Anything</button>
+      <button class="lol-cat-btn" data-cat="champion" onclick="selectOfflineLolCat('champion',this)" data-i18n="gi.lolCatChampion">👤 Champion</button>
+      <button class="lol-cat-btn" data-cat="passive" onclick="selectOfflineLolCat('passive',this)" data-i18n="gi.lolCatPassive">⚡ Passive</button>
+      <button class="lol-cat-btn" id="offline-slot-q" data-cat="q" onclick="selectOfflineLolCat('q',this)"></button>
+      <button class="lol-cat-btn" id="offline-slot-w" data-cat="w" onclick="selectOfflineLolCat('w',this)"></button>
+      <button class="lol-cat-btn" data-cat="e" onclick="selectOfflineLolCat('e',this)">E Spell</button>
+      <button class="lol-cat-btn" data-cat="r" onclick="selectOfflineLolCat('r',this)">R Spell</button>
+    </div>
+  </div>
+
+  <!-- Free mode answer input -->
+  <div id="offline-free-area" style="display:none;">
+    <div class="label">Answer to hide</div>
+    <div class="answer-input-wrap">
+      <input type="text" class="answer-input" id="offline-free-answer" placeholder="Enter what others must guess…" maxlength="100" autocomplete="off"/>
+    </div>
+    <button class="btn-primary" onclick="offlineSetFreeAnswer()">HIDE ANSWER →</button>
+  </div>
+
+  <!-- Reveal card (hidden until generated) -->
+  <div id="offline-reveal-area" style="display:none;">
+    <div id="offline-reveal-card" class="reveal-card theme-pokemon reveal-hidden" onclick="offlineReveal()">
+      <div id="offline-cover">
+        <div class="reveal-question">?</div>
+        <div class="reveal-hint">Tap to reveal</div>
+      </div>
+      <div id="offline-revealed" style="display:none;">
+        <div id="offline-reveal-context" class="reveal-context pokemon-ctx"></div>
+        <div id="offline-reveal-name" class="reveal-name pokemon-name"></div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="offlineGenerate()">🎲 New Round</button>
+  </div>
+
+  <!-- Generate button (initial) -->
+  <div id="offline-gen-area">
+    <button class="btn-primary" id="offline-gen-btn" onclick="offlineGenerate()">🎲 Generate</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ONLINE — WAITING ROOM
+══════════════════════════════════════════════════════════════ -->
+<div class="phase" id="phase-mp-waiting">
+  <a class="back-btn" href="#" onclick="mpLeave();return false;">← LOBBY</a>
+  <div class="section-title">🎯 GUESS <span style="color:var(--accent)">IT</span></div>
+  <div class="section-sub">Collaborative guessing game</div>
+
+  <div class="label">Players (<span id="waiting-count">0</span>)</div>
+  <div id="waiting-player-list" class="player-list"></div>
+
+  <!-- Hub scores (if any) -->
+  <div id="waiting-hub-scores" style="display:none;margin-bottom:1.5rem;">
+    <div class="label">Global scores</div>
+    <div id="waiting-hub-scores-body"></div>
+  </div>
+
+  <!-- Host config -->
+  <div id="waiting-host-area" style="display:none;">
+    <div class="label">Theme</div>
+    <div class="theme-row" style="margin-bottom:1rem;">
+      <button class="theme-btn active" data-theme="pokemon" onclick="selectMpTheme('pokemon',this)">
+        <span class="theme-icon">🎮</span><span class="theme-name">POKÉMON</span>
+      </button>
+      <button class="theme-btn" data-theme="lol" onclick="selectMpTheme('lol',this)">
+        <span class="theme-icon">⚔️</span><span class="theme-name">LEAGUE</span>
+      </button>
+      <button class="theme-btn" data-theme="free" onclick="selectMpTheme('free',this)">
+        <span class="theme-icon">✨</span><span class="theme-name">FREE</span>
+      </button>
+    </div>
+
+    <div id="mp-lol-cat" style="display:none;">
+      <div class="label" data-i18n="category">LoL Category</div>
+      <div class="lol-cat-row" id="mp-lol-cat-row">
+        <button class="lol-cat-btn active" data-cat="anything" onclick="selectMpLolCat('anything',this)" data-i18n="gi.lolCatAnything">🎲 Anything</button>
+        <button class="lol-cat-btn" data-cat="champion" onclick="selectMpLolCat('champion',this)" data-i18n="gi.lolCatChampion">👤 Champion</button>
+        <button class="lol-cat-btn" data-cat="passive" onclick="selectMpLolCat('passive',this)" data-i18n="gi.lolCatPassive">⚡ Passive</button>
+        <button class="lol-cat-btn" id="mp-slot-q" data-cat="q" onclick="selectMpLolCat('q',this)"></button>
+        <button class="lol-cat-btn" id="mp-slot-w" data-cat="w" onclick="selectMpLolCat('w',this)"></button>
+        <button class="lol-cat-btn" data-cat="e" onclick="selectMpLolCat('e',this)">E Spell</button>
+        <button class="lol-cat-btn" data-cat="r" onclick="selectMpLolCat('r',this)">R Spell</button>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="mpStartGame()" id="mp-start-btn">START GAME →</button>
+  </div>
+
+  <div id="waiting-guest-area" style="display:none;">
+    <div class="waiting-msg">Waiting for host to start the game…</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ONLINE — GUESSEUR SETS FREE ANSWER
+══════════════════════════════════════════════════════════════ -->
+<div class="phase" id="phase-free-input">
+  <div class="section-title">🎯 GUESS <span style="color:var(--accent)">IT</span></div>
+  <div id="free-input-guesseur" style="display:none;">
+    <div class="section-sub" style="margin-bottom:1.5rem;">You are the <strong style="color:var(--accent)">Guesseur</strong> — set the answer, then give hints to the others.</div>
+    <div class="label">Answer (hidden from others)</div>
+    <div class="answer-input-wrap" style="margin-bottom:1rem;">
+      <input type="text" class="answer-input" id="mp-free-answer-input" placeholder="What must others guess?" maxlength="100" autocomplete="off"/>
+    </div>
+    <button class="btn-primary" onclick="mpSetFreeAnswer()" id="mp-free-start-btn">START GAME →</button>
+  </div>
+  <div id="free-input-player" style="display:none;">
+    <div class="free-wait-card">
+      <div class="free-wait-icon">✨</div>
+      <div class="free-wait-title">FREE MODE</div>
+      <div class="free-wait-sub" id="free-wait-guesseur-name">The Guesseur is choosing the answer…</div>
+    </div>
+    <div class="waiting-msg">Get ready to guess!</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ONLINE — PLAYING
+══════════════════════════════════════════════════════════════ -->
+<div class="phase" id="phase-playing">
+
+  <!-- Role banner -->
+  <div class="role-banner" id="playing-role-banner">
+    <span id="playing-role-text"></span>
+  </div>
+
+  <!-- Guesseur: answer display -->
+  <div id="playing-answer-box" class="answer-box" style="display:none;">
+    <span class="answer-box-label">Answer</span>
+    <span class="answer-box-value" id="playing-answer-value"></span>
+    <span class="answer-box-context" id="playing-answer-context"></span>
+  </div>
+
+  <!-- Guesseur: hint input -->
+  <div id="playing-hint-area" style="display:none;">
+    <div class="label">Add a hint</div>
+    <div class="hint-input-row">
+      <input type="text" class="hint-input" id="playing-hint-input" placeholder="Give a clue to help them guess…" maxlength="200" autocomplete="off" onkeydown="if(event.key==='Enter')addHint()"/>
+      <button class="hint-send-btn" onclick="addHint()">HINT</button>
+    </div>
+  </div>
+
+  <!-- Players: propose area -->
+  <div id="playing-propose-area" style="display:none;">
+    <div class="label">Propose a guess or question</div>
+    <div class="hint-input-row">
+      <input type="text" class="hint-input" id="playing-propose-input" placeholder="Your guess or question…" maxlength="200" autocomplete="off" onkeydown="if(event.key==='Enter')proposeHint()"/>
+      <button class="hint-send-btn propose" onclick="proposeHint()">SEND</button>
+    </div>
+  </div>
+
+  <!-- Hint board -->
+  <div class="hints-section">
+    <div class="label">Hints &amp; Guesses (<span id="hint-count">0</span>)</div>
+    <div id="hint-list" class="hint-list">
+      <div class="hints-empty" id="hints-empty">No hints yet. The guesseur will give the first clue!</div>
+    </div>
+  </div>
+
+  <!-- Guesseur: end game -->
+  <div id="playing-end-area" style="display:none;">
+    <div class="end-game-area">
+      <div class="end-game-label">End the game</div>
+      <div class="winner-grid" id="winner-grid"></div>
+      <button class="nobody-btn" onclick="endGame('')">Nobody found it 😔</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ONLINE — RESULT
+══════════════════════════════════════════════════════════════ -->
+<div class="phase" id="phase-result">
+  <div id="result-hero" class="result-hero has-winner">
+    <div class="result-label" id="result-label">WINNER</div>
+    <div class="result-winner" id="result-winner">—</div>
+    <div class="result-answer-label">The answer was</div>
+    <div class="result-answer" id="result-answer"></div>
+    <div class="result-context" id="result-context"></div>
+  </div>
+
+  <!-- Hub scores -->
+  <div id="result-scores-section" style="display:none;">
+    <div class="label">Points earned this round</div>
+    <div class="scores-box" id="result-scores-box"></div>
+  </div>
+
+  <button class="btn-ghost" onclick="mpReturnToHub()">← BACK TO LOBBY</button>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// Utilities
+// ════════════════════════════════════════════════════════════════
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function showPhase(id){document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');}
+let _toastTimer=null;
+function toast(msg){const el=document.getElementById('toast-el');el.textContent=msg;el.classList.add('show');clearTimeout(_toastTimer);_toastTimer=setTimeout(()=>el.classList.remove('show'),3000);}
+
+// LoL slot helpers: QWER in English, AZER in French
+const LOL_SLOTS_EN=['Q','W','E','R'];
+const LOL_SLOTS_FR=['A','Z','E','R'];
+function lolSlot(slot){
+  const idx=['q','w','e','r'].indexOf(slot);
+  if(idx===-1)return slot.toUpperCase();
+  return(typeof getLang==='function'&&getLang()==='fr'?LOL_SLOTS_FR:LOL_SLOTS_EN)[idx];
+}
+function lolContext(type,champion){
+  if(type==='champion')return t('gi.champion');
+  if(type==='passive')return t('gi.passiveOf',{champion});
+  return t('gi.spellOf',{slot:lolSlot(type),champion});
+}
+function updateSlotButtons(){
+  const slots=['q','w','e','r'];
+  ['offline','mp'].forEach(pfx=>{
+    slots.forEach(s=>{
+      const btn=document.getElementById(pfx+'-slot-'+s);
+      if(btn)btn.textContent=lolSlot(s)+' Spell';
+    });
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// State
+// ════════════════════════════════════════════════════════════════
+let ws=null, myName='', roomCode='', isHost=false;
+let giPlayers=[], guesseurName='', hubScoresMap={};
+let mpTheme='pokemon', mpLolCategory='anything';
+let myRole='player'; // 'guesseur' | 'player'
+let myAnswer=null, myAnswerContext=null;
+let hints=[];
+let preGameHubScores={};
+
+// Offline state
+let offTheme='pokemon', offLolCat='anything';
+let pokemonList=null, lolChampions=null;
+let offlineRevealed=false;
+
+// ════════════════════════════════════════════════════════════════
+// Boot
+// ════════════════════════════════════════════════════════════════
+const params=new URLSearchParams(location.search);
+const urlRoom=params.get('room');
+const urlName=params.get('name');
+
+if(urlRoom&&urlName){
+  myName=urlName; roomCode=urlRoom;
+  showPhase('phase-mp-waiting');
+  connectWS();
+}else{
+  showPhase('phase-offline');
+}
+updateSlotButtons();
+window.addEventListener('langchange',()=>{
+  applyLang();
+  updateSlotButtons();
+});
+
+// ════════════════════════════════════════════════════════════════
+// OFFLINE MODE
+// ════════════════════════════════════════════════════════════════
+function selectOfflineTheme(t,btn){
+  offTheme=t;
+  document.querySelectorAll('#phase-offline .theme-btn').forEach(b=>b.classList.toggle('active',b.dataset.theme===t));
+  document.getElementById('offline-lol-cat').style.display=t==='lol'?'block':'none';
+  document.getElementById('offline-free-area').style.display=t==='free'?'block':'none';
+  // Reset generate area
+  document.getElementById('offline-gen-area').style.display=t==='free'?'none':'block';
+  document.getElementById('offline-reveal-area').style.display='none';
+  const genBtn=document.getElementById('offline-gen-btn');
+  if(genBtn)genBtn.disabled=false;
+}
+
+function selectOfflineLolCat(cat,btn){
+  offLolCat=cat;
+  document.querySelectorAll('#offline-lol-cat-row .lol-cat-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat));
+}
+
+async function offlineGenerate(){
+  if(offTheme==='free'){
+    offlineSetFreeAnswer();
+    return;
+  }
+  const btn=document.getElementById('offline-gen-btn');
+  if(btn){btn.disabled=true;btn.textContent='Loading…';}
+  try{
+    let name='',context='';
+    if(offTheme==='pokemon'){
+      if(!pokemonList){
+        const r=await fetch('/games/guess-it/data/pokemon.json');
+        pokemonList=await r.json();
+      }
+      name=pokemonList[Math.floor(Math.random()*pokemonList.length)];
+      context=t('gi.pokemon');
+    }else if(offTheme==='lol'){
+      if(!lolChampions){
+        const r=await fetch('/games/guess-it/data/lol-champions.json');
+        lolChampions=await r.json();
+      }
+      const champ=lolChampions[Math.floor(Math.random()*lolChampions.length)];
+      let cat=offLolCat;
+      if(cat==='anything'){const opts=['champion','passive','q','w','e','r'];cat=opts[Math.floor(Math.random()*opts.length)];}
+        name=cat==='champion'?champ.name:cat==='passive'?champ.passive:champ.spells[['q','w','e','r'].indexOf(cat)];
+        context=lolContext(cat,champ.name);
+    }
+    showOfflineReveal(name,context);
+  }catch(e){
+    toast('Error loading data. Check your connection.');
+    if(btn){btn.disabled=false;btn.textContent='🎲 Generate';}
+  }
+}
+
+function offlineSetFreeAnswer(){
+  const val=document.getElementById('offline-free-answer').value.trim();
+  if(!val){toast('Enter an answer first!');return;}
+  showOfflineReveal(val,'Free');
+}
+
+function showOfflineReveal(name,context){
+  offlineRevealed=false;
+  const card=document.getElementById('offline-reveal-card');
+  const themeClass=offTheme==='pokemon'?'theme-pokemon':offTheme==='lol'?'theme-lol':'theme-free';
+  card.className='reveal-card '+themeClass+' reveal-hidden';
+
+  document.getElementById('offline-cover').style.display='block';
+  document.getElementById('offline-revealed').style.display='none';
+
+  const ctxEl=document.getElementById('offline-reveal-context');
+  const nameEl=document.getElementById('offline-reveal-name');
+  const ctxClass=offTheme==='pokemon'?'pokemon-ctx':offTheme==='lol'?'lol-ctx':'free-ctx';
+  const nameClass=offTheme==='pokemon'?'pokemon-name':offTheme==='lol'?'lol-name':'free-name';
+  ctxEl.className='reveal-context '+ctxClass;
+  nameEl.className='reveal-name '+nameClass;
+  ctxEl.textContent=context;
+  nameEl.textContent=name;
+
+  document.getElementById('offline-gen-area').style.display='none';
+  document.getElementById('offline-free-area').style.display='none';
+  document.getElementById('offline-reveal-area').style.display='block';
+}
+
+function offlineReveal(){
+  if(offlineRevealed)return;
+  offlineRevealed=true;
+  const card=document.getElementById('offline-reveal-card');
+  card.classList.remove('reveal-hidden');
+  card.onclick=null;
+  document.getElementById('offline-cover').style.display='none';
+  document.getElementById('offline-revealed').style.display='block';
+}
+
+// ════════════════════════════════════════════════════════════════
+// ONLINE — WebSocket
+// ════════════════════════════════════════════════════════════════
+function connectWS(attempt=1){
+  const proto=location.protocol==='https:'?'wss:':'ws:';
+  ws=new WebSocket(`${proto}//${location.host}`);
+  ws.onopen=()=>ws.send(JSON.stringify({type:'join_room',code:roomCode,name:myName}));
+  ws.onmessage=e=>handleMsg(JSON.parse(e.data));
+  ws.onclose=()=>{ws=null;if(roomCode)setTimeout(()=>connectWS(attempt+1),Math.min(1000*attempt,10000));};
+  ws.onerror=()=>{};
+}
+function wsSend(msg){if(ws&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify(msg));}
+
+function handleMsg(msg){
+  switch(msg.type){
+    case 'joined': isHost=msg.isHost; updateWaitingUI(); break;
+    case 'room_state': onRoomState(msg); break;
+    case 'player_ready': break;
+    case 'new_host': isHost=(msg.name===myName); updateWaitingUI(); break;
+    case 'player_left': toast(esc(msg.name)+' left'); renderWaitingPlayers(); break;
+    case 'player_offline': toast(esc(msg.name)+' disconnected'); break;
+    case 'player_online': toast(esc(msg.name)+' reconnected'); break;
+    case 'hub_scores_updated': hubScoresMap=msg.hubScores||{}; break;
+    case 'gi_start': onGiStart(msg); break;
+    case 'gi_answer_set': onAnswerSet(msg); break;
+    case 'gi_hint_added': onHintAdded(msg.hint); break;
+    case 'gi_hint_updated': onHintUpdated(msg.hintId,msg.state); break;
+    case 'gi_hint_deleted': onHintDeleted(msg.hintId); break;
+    case 'gi_game_over': onGameOver(msg); break;
+    case 'gi_rejoin': onRejoin(msg); break;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// WAITING ROOM
+// ════════════════════════════════════════════════════════════════
+function onRoomState(msg){
+  giPlayers=msg.players||[];
+  isHost=msg.players&&msg.players.length>0&&(msg.host===myName)||(msg.isHost)||isHost;
+  renderWaitingPlayers();
+  updateWaitingUI();
+}
+
+function renderWaitingPlayers(){
+  const list=document.getElementById('waiting-player-list');
+  document.getElementById('waiting-count').textContent=giPlayers.length;
+  list.innerHTML=giPlayers.map(n=>`
+    <div class="player-item">
+      <span>${esc(n)}</span>
+      ${n===myName?'<span class="you-tag">YOU</span>':''}
+    </div>
+  `).join('');
+}
+
+function updateWaitingUI(){
+  document.getElementById('waiting-host-area').style.display=isHost?'block':'none';
+  document.getElementById('waiting-guest-area').style.display=isHost?'none':'block';
+}
+
+function selectMpTheme(t,btn){
+  mpTheme=t;
+  document.querySelectorAll('#waiting-host-area .theme-btn').forEach(b=>b.classList.toggle('active',b.dataset.theme===t));
+  document.getElementById('mp-lol-cat').style.display=t==='lol'?'block':'none';
+}
+
+function selectMpLolCat(cat,btn){
+  mpLolCategory=cat;
+  document.querySelectorAll('#mp-lol-cat-row .lol-cat-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat));
+}
+
+function mpStartGame(){
+  if(!isHost)return;
+  document.getElementById('mp-start-btn').disabled=true;
+  wsSend({type:'start_guess_it',theme:mpTheme,lolCategory:mpLolCategory});
+}
+
+function mpLeave(){
+  wsSend({type:'leave_room'});
+  if(ws){ws.onclose=null;ws.close();ws=null;}
+  location.href='/';
+}
+
+// ════════════════════════════════════════════════════════════════
+// GAME START
+// ════════════════════════════════════════════════════════════════
+function onGiStart(msg){
+  myRole=msg.isGuesseur?'guesseur':'player';
+  guesseurName=msg.guesseur;
+  mpTheme=msg.theme;
+  mpLolCategory=msg.lolCategory;
+  hints=[];
+  preGameHubScores={...hubScoresMap};
+  myAnswer=msg.answer||null;
+  myAnswerContext=msg.answerContext||null;
+
+  if(msg.theme==='free'&&msg.giPhase==='waiting_answer'){
+    showPhase('phase-free-input');
+    if(msg.isGuesseur){
+      document.getElementById('free-input-guesseur').style.display='block';
+      document.getElementById('free-input-player').style.display='none';
+    }else{
+      document.getElementById('free-input-guesseur').style.display='none';
+      document.getElementById('free-input-player').style.display='block';
+      document.getElementById('free-wait-guesseur-name').textContent=
+        esc(guesseurName)+' is choosing the answer…';
+    }
+  }else{
+    enterPlayingPhase();
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// FREE ANSWER HANDLING
+// ════════════════════════════════════════════════════════════════
+function mpSetFreeAnswer(){
+  const val=document.getElementById('mp-free-answer-input').value.trim();
+  if(!val){toast('Enter an answer first!');return;}
+  myAnswer=val;
+  document.getElementById('mp-free-start-btn').disabled=true;
+  wsSend({type:'gi_set_answer',answer:val});
+}
+
+function onAnswerSet(msg){
+  if(msg.giPhase==='playing'){
+    enterPlayingPhase();
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// PLAYING PHASE
+// ════════════════════════════════════════════════════════════════
+function enterPlayingPhase(){
+  showPhase('phase-playing');
+
+  const roleBanner=document.getElementById('playing-role-banner');
+  const roleText=document.getElementById('playing-role-text');
+  if(myRole==='guesseur'){
+    roleBanner.className='role-banner is-guesseur';
+    roleText.innerHTML='🎯 You are the <strong>Guesseur</strong> — give hints, validate guesses, end the game when someone finds it.';
+    document.getElementById('playing-answer-box').style.display='flex';
+    document.getElementById('playing-hint-area').style.display='block';
+    document.getElementById('playing-propose-area').style.display='none';
+    document.getElementById('playing-end-area').style.display='block';
+
+    // Populate answer box
+    document.getElementById('playing-answer-value').textContent=myAnswer||'—';
+    const ctxEl=document.getElementById('playing-answer-context');
+    if(myAnswerContext){
+      const{champion,type}=myAnswerContext;
+      ctxEl.textContent=lolContext(type,champion);
+    }else if(mpTheme==='pokemon'){
+      ctxEl.textContent=t('gi.pokemon');
+    }else{
+      ctxEl.textContent='';
+    }
+  }else{
+    roleBanner.className='role-banner is-player';
+    roleText.innerHTML='👥 Guesseur: <strong>'+esc(guesseurName)+'</strong> — propose guesses and listen to their hints!';
+    document.getElementById('playing-answer-box').style.display='none';
+    document.getElementById('playing-hint-area').style.display='none';
+    document.getElementById('playing-propose-area').style.display='block';
+    document.getElementById('playing-end-area').style.display='none';
+  }
+  renderHintBoard();
+  renderWinnerGrid();
+}
+
+function renderWinnerGrid(){
+  const grid=document.getElementById('winner-grid');
+  const others=giPlayers.filter(n=>n!==guesseurName);
+  grid.innerHTML=others.map(n=>`<button class="winner-btn" onclick="endGame('${esc(n)}')">${esc(n)} found it! 🎉</button>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════════
+// HINTS
+// ════════════════════════════════════════════════════════════════
+function addHint(){
+  if(myRole!=='guesseur')return;
+  const input=document.getElementById('playing-hint-input');
+  const text=input.value.trim();
+  if(!text)return;
+  wsSend({type:'gi_add_hint',text});
+  input.value='';
+}
+
+function proposeHint(){
+  if(myRole==='guesseur')return;
+  const input=document.getElementById('playing-propose-input');
+  const text=input.value.trim();
+  if(!text)return;
+  wsSend({type:'gi_propose_hint',text});
+  input.value='';
+}
+
+function validateHint(id){wsSend({type:'gi_validate_hint',hintId:id});}
+function invalidateHint(id){wsSend({type:'gi_invalidate_hint',hintId:id});}
+function deleteHint(id){wsSend({type:'gi_delete_hint',hintId:id});}
+
+function onHintAdded(hint){
+  hints.push(hint);
+  renderHintBoard();
+}
+
+function onHintUpdated(id,state){
+  const h=hints.find(h=>h.id===id);
+  if(h)h.state=state;
+  renderHintBoard();
+}
+
+function onHintDeleted(id){
+  hints=hints.filter(h=>h.id!==id);
+  renderHintBoard();
+}
+
+function renderHintBoard(){
+  const list=document.getElementById('hint-list');
+  const empty=document.getElementById('hints-empty');
+  document.getElementById('hint-count').textContent=hints.length;
+  if(!hints.length){
+    empty.style.display='block';
+    list.innerHTML='';
+    return;
+  }
+  empty.style.display='none';
+  list.innerHTML=hints.map(h=>renderHintItem(h)).join('');
+}
+
+function renderHintItem(h){
+  const isGuesseurHint=h.type==='guesseur';
+  const itemClass='hint-item'+(isGuesseurHint?' type-guesseur':' state-'+h.state);
+  const authorClass=isGuesseurHint?'guesseur-author':'player-author';
+  let badgeHtml='';
+  if(isGuesseurHint){
+    badgeHtml=`<span class="hint-badge badge-guesseur">🎯 Guesseur</span>`;
+  }else if(h.state==='valid'){
+    badgeHtml=`<span class="hint-badge badge-valid">✓ Valid</span>`;
+  }else if(h.state==='invalid'){
+    badgeHtml=`<span class="hint-badge badge-invalid">✗ Invalid</span>`;
+  }else{
+    badgeHtml=`<span class="hint-badge badge-pending">⏳ Pending</span>`;
+  }
+  let actionsHtml='';
+  if(myRole==='guesseur'&&!isGuesseurHint&&h.state==='pending'){
+    actionsHtml+=`<button class="hint-action-btn validate" onclick="validateHint(${h.id})" title="Validate">✓</button>`;
+    actionsHtml+=`<button class="hint-action-btn invalidate" onclick="invalidateHint(${h.id})" title="Invalidate">✗</button>`;
+  }
+  actionsHtml+=`<button class="hint-action-btn del" onclick="deleteHint(${h.id})" title="Delete">🗑</button>`;
+
+  const textClass='hint-text'+(h.state==='invalid'?' crossed':'');
+  return `<div class="${itemClass}">
+    <div>
+      <div class="hint-top">
+        <span class="hint-author ${authorClass}">${esc(h.author)}</span>
+        ${badgeHtml}
+        <div class="hint-actions">${actionsHtml}</div>
+      </div>
+      <div class="${textClass}">${esc(h.text)}</div>
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════════════════════
+// END GAME
+// ════════════════════════════════════════════════════════════════
+function endGame(winner){
+  if(myRole!=='guesseur')return;
+  wsSend({type:'gi_end_game',winner:winner||''});
+}
+
+function onGameOver(msg){
+  showPhase('phase-result');
+  const hero=document.getElementById('result-hero');
+  const label=document.getElementById('result-label');
+  const winnerEl=document.getElementById('result-winner');
+
+  if(msg.winner){
+    hero.className='result-hero has-winner';
+    label.textContent='WINNER';
+    winnerEl.textContent=msg.winner+(msg.winner===myName?' (You)':'');
+  }else{
+    hero.className='result-hero no-winner';
+    label.textContent='NOBODY FOUND IT';
+    winnerEl.textContent='¯\\_(ツ)_/¯';
+  }
+
+  // Answer
+  const answerEl=document.getElementById('result-answer');
+  const ctxEl=document.getElementById('result-context');
+  const ansClass=msg.theme==='pokemon'?'pokemon-ans':msg.theme==='lol'?'lol-ans':'free-ans';
+  answerEl.className='result-answer '+ansClass;
+  answerEl.textContent=msg.answer||'—';
+
+  if(msg.answerContext){
+    const{champion,type}=msg.answerContext;
+    ctxEl.textContent=lolContext(type,champion);
+  }else if(msg.theme==='pokemon'){
+    ctxEl.textContent=t('gi.pokemon');
+  }else{
+    ctxEl.textContent='';
+  }
+
+  // Hub score delta
+  const newScores=msg.hubScores||{};
+  const entries=Object.entries(newScores)
+    .map(([n,pts])=>({name:n,pts,delta:pts-(preGameHubScores[n]||0)}))
+    .filter(e=>e.delta>0)
+    .sort((a,b)=>b.delta-a.delta);
+  if(entries.length){
+    document.getElementById('result-scores-section').style.display='block';
+    document.getElementById('result-scores-box').innerHTML=entries.map((e,i)=>`
+      <div class="scores-row">
+        <span class="scores-rank">${i+1}</span>
+        <span>${esc(e.name)}${e.name===myName?' <span style="font-size:10px;color:var(--accent);">(you)</span>':''}</span>
+        <span class="scores-pts">+${e.delta}</span>
+      </div>
+    `).join('');
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// REJOIN
+// ════════════════════════════════════════════════════════════════
+function onRejoin(msg){
+  isHost=msg.isHost;
+  myRole=msg.isGuesseur?'guesseur':'player';
+  guesseurName=msg.guesseur;
+  mpTheme=msg.theme;
+  mpLolCategory=msg.lolCategory;
+  hints=msg.hints||[];
+  myAnswer=msg.answer||null;
+  myAnswerContext=msg.answerContext||null;
+  giPlayers=msg.players||[];
+
+  if(msg.giPhase==='waiting_answer'){
+    showPhase('phase-free-input');
+    if(msg.isGuesseur){
+      document.getElementById('free-input-guesseur').style.display='block';
+      document.getElementById('free-input-player').style.display='none';
+    }else{
+      document.getElementById('free-input-guesseur').style.display='none';
+      document.getElementById('free-input-player').style.display='block';
+      document.getElementById('free-wait-guesseur-name').textContent=esc(guesseurName)+' is choosing the answer…';
+    }
+  }else if(msg.giPhase==='playing'){
+    enterPlayingPhase();
+  }else if(msg.giPhase==='result'){
+    // Won't normally get here, but handle it
+    onGameOver(msg);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// RETURN TO HUB
+// ════════════════════════════════════════════════════════════════
+function mpReturnToHub(){
+  wsSend({type:'return_to_hub'});
+  location.href='/?room='+roomCode+'&name='+encodeURIComponent(myName);
+}
+</script>
+</body>
+</html>

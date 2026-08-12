@@ -88,6 +88,9 @@ const PROFILER_CRITERIA  = require('./games/profiler/data/criteria.json');
 const FAKE_ARTIST_WORDS  = require('./games/fake-artist/data/words.json');
 const WAVELENGTH_PAIRS   = require('./games/wavelength/data/pairs.json');
 const INSIDER_WORDS      = require('./games/insider/data/words.json');
+let GUESS_IT_POKEMON = [], GUESS_IT_LOL = [];
+try { GUESS_IT_POKEMON = require('./games/guess-it/data/pokemon.json'); } catch(e) { console.warn('Guess It Pokemon data not found'); }
+try { GUESS_IT_LOL    = require('./games/guess-it/data/lol-champions.json'); } catch(e) { console.warn('Guess It LoL data not found'); }
 const FA_COLORS = ['#f472b6','#38bdf8','#4ade80','#facc15','#fb923c','#a78bfa','#f87171','#34d399','#e879f9','#22d3ee'];
 function getInsiderWord(category) {
   const list = category === 'random'
@@ -594,6 +597,7 @@ function handleMessage(socket, raw, playerId) {
       room.profilerPhase = null;
       room.faPhase = null;
       room.wlPhase = null;
+      room.giPhase = null;
       room.paused = false;
       room.phase = 'hub';
       room.gameType = 'hub';
@@ -1501,6 +1505,136 @@ function handleMessage(socket, raw, playerId) {
       break;
     }
 
+    // ─── GUESS IT ─────────────────────────────────────────────────────────────────
+
+    case 'start_guess_it': {
+      if (!room || room.host !== playerId) return;
+      const giPlayerIds = Object.keys(room.players);
+      if (giPlayerIds.length < 2) { wsSend(socket, { type: 'error', msg: 'Need at least 2 players.' }); return; }
+      const giTheme = msg.theme || 'pokemon';
+      const giLolCategory = msg.lolCategory || 'anything';
+      const giGuesseurId = giPlayerIds[Math.floor(Math.random() * giPlayerIds.length)];
+      let giAnswer = null, giAnswerContext = null;
+      if (giTheme === 'pokemon') {
+        if (!GUESS_IT_POKEMON.length) { wsSend(socket, { type: 'error', msg: 'Pokemon data not loaded.' }); return; }
+        giAnswer = GUESS_IT_POKEMON[Math.floor(Math.random() * GUESS_IT_POKEMON.length)];
+      } else if (giTheme === 'lol') {
+        if (!GUESS_IT_LOL.length) { wsSend(socket, { type: 'error', msg: 'LoL data not loaded.' }); return; }
+        const champ = GUESS_IT_LOL[Math.floor(Math.random() * GUESS_IT_LOL.length)];
+        let cat = giLolCategory;
+        if (cat === 'anything') { const opts = ['champion','passive','q','w','e','r']; cat = opts[Math.floor(Math.random() * opts.length)]; }
+        giAnswerContext = { champion: champ.name, type: cat };
+        if (cat === 'champion') giAnswer = champ.name;
+        else if (cat === 'passive') giAnswer = champ.passive;
+        else giAnswer = champ.spells[['q','w','e','r'].indexOf(cat)];
+      }
+      room.giTheme = giTheme;
+      room.giLolCategory = giLolCategory;
+      room.giGuesseurId = giGuesseurId;
+      room.giAnswer = giAnswer;
+      room.giAnswerContext = giAnswerContext;
+      room.giHints = [];
+      room.giHintCounter = 0;
+      room.giPhase = giTheme === 'free' ? 'waiting_answer' : 'playing';
+      room.phase = 'playing';
+      const giGuesseurName = room.players[giGuesseurId]?.name;
+      for (const [id, player] of Object.entries(room.players)) {
+        const isG = id === giGuesseurId;
+        wsSend(player.socket, {
+          type: 'gi_start',
+          isGuesseur: isG,
+          guesseur: giGuesseurName,
+          theme: giTheme,
+          lolCategory: giLolCategory,
+          answer: (isG && giTheme !== 'free') ? giAnswer : null,
+          answerContext: isG ? giAnswerContext : null,
+          giPhase: room.giPhase,
+          players: Object.values(room.players).map(p => p.name),
+        });
+      }
+      console.log(`Room ${room.code} guess-it started theme:${giTheme} guesseur:${giGuesseurName}`);
+      break;
+    }
+
+    case 'gi_set_answer': {
+      if (!room || room.giGuesseurId !== playerId || room.giPhase !== 'waiting_answer') return;
+      const giAns = (msg.answer || '').trim().slice(0, 100);
+      if (!giAns) return;
+      room.giAnswer = giAns;
+      room.giPhase = 'playing';
+      broadcast(room, { type: 'gi_answer_set', giPhase: 'playing' });
+      break;
+    }
+
+    case 'gi_add_hint': {
+      if (!room || room.giGuesseurId !== playerId || room.giPhase !== 'playing') return;
+      const giHintText = (msg.text || '').trim().slice(0, 200);
+      if (!giHintText) return;
+      const giHint = { id: ++room.giHintCounter, text: giHintText, author: playerName, type: 'guesseur', state: 'valid' };
+      room.giHints.push(giHint);
+      broadcast(room, { type: 'gi_hint_added', hint: giHint });
+      break;
+    }
+
+    case 'gi_propose_hint': {
+      if (!room || room.giGuesseurId === playerId || room.giPhase !== 'playing') return;
+      const giPropText = (msg.text || '').trim().slice(0, 200);
+      if (!giPropText) return;
+      const giPropHint = { id: ++room.giHintCounter, text: giPropText, author: playerName, type: 'player', state: 'pending' };
+      room.giHints.push(giPropHint);
+      broadcast(room, { type: 'gi_hint_added', hint: giPropHint });
+      break;
+    }
+
+    case 'gi_validate_hint': {
+      if (!room || room.giGuesseurId !== playerId) return;
+      const giVH = room.giHints.find(h => h.id === msg.hintId);
+      if (!giVH || giVH.state !== 'pending') return;
+      giVH.state = 'valid';
+      broadcast(room, { type: 'gi_hint_updated', hintId: msg.hintId, state: 'valid' });
+      break;
+    }
+
+    case 'gi_invalidate_hint': {
+      if (!room || room.giGuesseurId !== playerId) return;
+      const giIH = room.giHints.find(h => h.id === msg.hintId);
+      if (!giIH || giIH.state !== 'pending') return;
+      giIH.state = 'invalid';
+      broadcast(room, { type: 'gi_hint_updated', hintId: msg.hintId, state: 'invalid' });
+      break;
+    }
+
+    case 'gi_delete_hint': {
+      if (!room || room.giPhase !== 'playing') return;
+      const giDIdx = room.giHints.findIndex(h => h.id === msg.hintId);
+      if (giDIdx === -1) return;
+      room.giHints.splice(giDIdx, 1);
+      broadcast(room, { type: 'gi_hint_deleted', hintId: msg.hintId });
+      break;
+    }
+
+    case 'gi_end_game': {
+      if (!room || room.giGuesseurId !== playerId || room.giPhase !== 'playing') return;
+      const giWinner = (msg.winner || '').trim();
+      room.giPhase = 'result';
+      room.phase = 'result';
+      if (room.hubScores) {
+        if (giWinner) room.hubScores[giWinner] = (room.hubScores[giWinner] || 0) + 800;
+        room.hubScores[playerName] = (room.hubScores[playerName] || 0) + 200;
+        broadcast(room, { type: 'hub_scores_updated', hubScores: { ...room.hubScores } });
+      }
+      broadcast(room, {
+        type: 'gi_game_over',
+        winner: giWinner,
+        answer: room.giAnswer,
+        answerContext: room.giAnswerContext,
+        theme: room.giTheme,
+        hubScores: { ...(room.hubScores || {}) },
+      });
+      console.log(`Room ${room.code} guess-it ended winner:${giWinner||'nobody'}`);
+      break;
+    }
+
     case 'rejoin_room': {
       const rjCode = (msg.code || '').toUpperCase().trim();
       const rjName = (msg.name || '').trim();
@@ -1537,6 +1671,7 @@ function handleMessage(socket, raw, playerId) {
         if (rj.wlScores && rj.wlScores[existingId] !== undefined) { rj.wlScores[playerId] = rj.wlScores[existingId]; delete rj.wlScores[existingId]; }
         if (rj.wlGuesses && rj.wlGuesses[existingId] !== undefined) { rj.wlGuesses[playerId] = rj.wlGuesses[existingId]; delete rj.wlGuesses[existingId]; }
         if (rj.wlPsychicId === existingId) rj.wlPsychicId = playerId;
+        if (rj.giGuesseurId === existingId) rj.giGuesseurId = playerId;
       } else {
         // Re-key player under the new connection's playerId
         rj.players[playerId] = { ...rj.players[existingId], socket, online: true };
@@ -1554,6 +1689,7 @@ function handleMessage(socket, raw, playerId) {
         if (rj.wlScores && rj.wlScores[existingId] !== undefined) { rj.wlScores[playerId] = rj.wlScores[existingId]; delete rj.wlScores[existingId]; }
         if (rj.wlGuesses && rj.wlGuesses[existingId] !== undefined) { rj.wlGuesses[playerId] = rj.wlGuesses[existingId]; delete rj.wlGuesses[existingId]; }
         if (rj.wlPsychicId === existingId) rj.wlPsychicId = playerId;
+        if (rj.giGuesseurId === existingId) rj.giGuesseurId = playerId;
       }
       const rjIsHost = rj.host === playerId;
       wsSend(socket, { type: 'joined', code: rjCode, name: rjName, isHost: rjIsHost });
@@ -1636,6 +1772,23 @@ function handleMessage(socket, raw, playerId) {
           expected,
           received,
           players: Object.values(rj.players).map(p => p.name),
+        });
+        broadcast(rj, { type: 'player_online', name: rjName }, socket);
+      } else if (rj.gameType === 'guess_it' && rj.giPhase) {
+        const isG = rj.giGuesseurId === playerId;
+        wsSend(socket, {
+          type: 'gi_rejoin',
+          code: rjCode, name: rjName, isHost: rjIsHost,
+          isGuesseur: isG,
+          guesseur: rj.players[rj.giGuesseurId]?.name,
+          theme: rj.giTheme,
+          lolCategory: rj.giLolCategory,
+          answer: isG ? rj.giAnswer : null,
+          answerContext: isG ? rj.giAnswerContext : null,
+          giPhase: rj.giPhase,
+          hints: rj.giHints || [],
+          players: Object.values(rj.players).map(p => p.name),
+          hubScores: { ...(rj.hubScores || {}) },
         });
         broadcast(rj, { type: 'player_online', name: rjName }, socket);
       } else {

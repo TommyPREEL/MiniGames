@@ -438,6 +438,20 @@ en: {
   'wl.lowestScoreWins': 'Lowest total score: {score}',
   'wl.noPoints': 'No points',
   'wl.winner': 'Winner',
+
+  // ── Guess It ───────────────────────────────────────────────────────────
+  'card.guessit.desc': 'Give hints, guess the Pokémon, LoL champion, spell or anything. Local randomizer & online.',
+  'card.guessit.tag': '2+ players · Local / Online',
+  'game.guessIt': 'GUESS IT',
+  'rules.guessIt': 'One player is the <b>Guesseur</b> — they know the answer and give hints to others. Players collaborate to find it. Themes: <b>Pokémon</b>, <b>League of Legends</b> (champion, passive, spell…) or <b>Free</b> (anything you choose). The Guesseur validates or rejects hints. Offline: pure randomizer mode.',
+  'gi.lolSlots': 'Q,W,E,R',
+  'gi.spellOf': '{slot} of {champion}',
+  'gi.passiveOf': 'Passive of {champion}',
+  'gi.champion': 'Champion',
+  'gi.pokemon': 'Pokémon',
+  'gi.lolCatAnything': '🎲 Anything',
+  'gi.lolCatChampion': '👤 Champion',
+  'gi.lolCatPassive': '⚡ Passive',
 },
 
 // ─── FRENCH ───────────────────────────────────────────────────
@@ -876,6 +890,20 @@ fr: {
   'wl.lowestScoreWins': 'Score total le plus bas : {score}',
   'wl.noPoints': 'Aucun point',
   'wl.winner': 'Vainqueur',
+
+  // ── Guess It ───────────────────────────────────────────────────────────
+  'card.guessit.desc': "Donnez des indices, devinez le Pokémon, le champion LoL, son sort ou ce que vous voulez. Randomiseur local & en ligne.",
+  'card.guessit.tag': '2+ joueurs · Local / En ligne',
+  'game.guessIt': 'GUESS IT',
+  'rules.guessIt': 'Un joueur est le <b>Guesseur</b> — il connaît la réponse et donne des indices. Les autres collaborent pour trouver. Thèmes : <b>Pokémon</b>, <b>League of Legends</b> (champion, passif, sort…) ou <b>Libre</b>. Le Guesseur valide ou rejette les propositions. Hors-ligne : mode randomiseur pur.',
+  'gi.lolSlots': 'A,Z,E,R',
+  'gi.spellOf': 'le {slot} {champion}',
+  'gi.passiveOf': 'Passif de {champion}',
+  'gi.champion': 'Champion',
+  'gi.pokemon': 'Pokémon',
+  'gi.lolCatAnything': '🎲 N’importe quoi',
+  'gi.lolCatChampion': '👤 Champion',
+  'gi.lolCatPassive': '⚡ Passif',
 },
 };
 

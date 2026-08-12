@@ -97,6 +97,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .game-sel-btn[data-game="profiler"].active{border-color:#a78bfa;background:rgba(167,139,250,0.08);color:#a78bfa;}
 .game-sel-btn[data-game="fake_artist"].active{border-color:#f472b6;background:rgba(244,114,182,0.08);color:#f472b6;}
 .game-sel-btn[data-game="wavelength"].active{border-color:#34d399;background:rgba(52,211,153,0.08);color:#34d399;}
+.game-sel-btn[data-game="guess_it"].active{border-color:#f97316;background:rgba(249,115,22,0.08);color:#f97316;}
 
 /* Config selectors */
 
@@ -200,6 +201,11 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="rule-title">📡 WAVELENGTH <span class="rule-tag" style="background:rgba(52,211,153,0.15);color:#34d399;">Online</span></div>
     <div class="rule-body" data-i18n="rules.wavelength" data-i18n-html>Each round, one <b>Psychic</b> sees a secret target on a spectrum and gives a one-word clue. Everyone else guesses the percentage. Round penalty is the absolute difference from the target. The psychic rotates each turn. <b>Lowest total score wins.</b></div>
   </div>
+
+  <div class="rule-block">
+    <div class="rule-title">🎯 GUESS IT <span class="rule-tag" style="background:rgba(249,115,22,0.15);color:#f97316;">Local/Online</span></div>
+    <div class="rule-body" data-i18n="rules.guessIt" data-i18n-html>One player is the <b>Guesseur</b> — they know the answer and give hints to others. Players collaborate to find it. Themes: <b>Pokémon</b>, <b>League of Legends</b> (champion, passive, spell…) or <b>Free</b>. The Guesseur validates or rejects hints. Offline: pure randomizer mode.</div>
+  </div>
 </div>
 
 <div class="orb orb-1"></div>
@@ -286,6 +292,15 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         </div>
         <div class="game-arrow">→</div>
       </a>
+      <a class="game-card" href="/games/guess-it/" style="--accent:#f97316;">
+        <div class="game-icon">🎯</div>
+        <div class="game-info">
+          <div class="game-title" data-i18n="game.guessIt">GUESS IT</div>
+          <div class="game-desc" data-i18n="card.guessit.desc">Give hints, guess the Pokémon, LoL champion, spell or anything. Local randomizer &amp; online.</div>
+          <div class="game-tag" data-i18n="card.guessit.tag">2+ players · Local / Online</div>
+        </div>
+        <div class="game-arrow">→</div>
+      </a>
     </div>
 
   </div>
@@ -345,6 +360,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         </button>
         <button class="game-sel-btn" data-game="wavelength" onclick="selectGame('wavelength',this)">
           <span class="gs-icon">📡</span><span class="gs-name">WAVELENGTH</span>
+        </button>
+        <button class="game-sel-btn" data-game="guess_it" onclick="selectGame('guess_it',this)">
+          <span class="gs-icon">🎯</span><span class="gs-name">GUESS IT</span>
         </button>
       </div>
 
@@ -624,7 +642,7 @@ function navigateToGame(gameType, code, config) {
     showHubView(code);
     return;
   }
-  const paths = { undercover: '/games/undercover/', millionaire: '/games/millionaire/', hottakes: '/games/hottakes/', insider: '/games/insider/', profiler: '/games/profiler/', fake_artist: '/games/fake-artist/', wavelength: '/games/wavelength/' };
+  const paths = { undercover: '/games/undercover/', millionaire: '/games/millionaire/', hottakes: '/games/hottakes/', insider: '/games/insider/', profiler: '/games/profiler/', fake_artist: '/games/fake-artist/', wavelength: '/games/wavelength/', guess_it: '/games/guess-it/' };
   const base = paths[gameType];
   if (!base) return;
   const params = new URLSearchParams({ room: code, name: myName });
