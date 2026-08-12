@@ -241,7 +241,10 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         <div id="offline-reveal-name" class="reveal-name pokemon-name"></div>
       </div>
     </div>
-    <button class="btn-primary" onclick="offlineGenerate()">🎲 New Round</button>
+    <div style="display:flex;gap:8px;margin-top:0;">
+      <button id="offline-toggle-btn" class="btn-secondary" style="margin-top:0;" onclick="offlineToggle()">👁 Hide</button>
+      <button class="btn-primary" style="flex:1;" onclick="offlineGenerate()">🎲 New Round</button>
+    </div>
   </div>
 
   <!-- Generate button (initial) -->
@@ -548,6 +551,9 @@ function showOfflineReveal(name,context){
   ctxEl.textContent=context;
   nameEl.textContent=name;
 
+  const card2=document.getElementById('offline-reveal-card');
+  card2.onclick=offlineToggle;
+  document.getElementById('offline-toggle-btn').textContent='\ud83d\udc41 Show';
   document.getElementById('offline-gen-area').style.display='none';
   document.getElementById('offline-free-area').style.display='none';
   document.getElementById('offline-reveal-area').style.display='block';
@@ -561,6 +567,29 @@ function offlineReveal(){
   card.onclick=null;
   document.getElementById('offline-cover').style.display='none';
   document.getElementById('offline-revealed').style.display='block';
+  document.getElementById('offline-toggle-btn').textContent='👁 Hide';
+}
+
+function offlineToggle(){
+  if(!offlineRevealed){offlineReveal();return;}
+  const card=document.getElementById('offline-reveal-card');
+  const revealed=document.getElementById('offline-revealed');
+  const cover=document.getElementById('offline-cover');
+  const btn=document.getElementById('offline-toggle-btn');
+  const hidden=cover.style.display!=='none';
+  if(hidden){
+    cover.style.display='none';
+    revealed.style.display='block';
+    card.classList.remove('reveal-hidden');
+    card.onclick=null;
+    btn.textContent='👁 Hide';
+  }else{
+    cover.style.display='block';
+    revealed.style.display='none';
+    card.classList.add('reveal-hidden');
+    card.onclick=offlineToggle;
+    btn.textContent='👁 Show';
+  }
 }
 
 // ════════════════════════════════════════════════════════════════
