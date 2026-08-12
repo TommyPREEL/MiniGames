@@ -70,6 +70,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .reveal-context.free-ctx{color:var(--free);}
 .reveal-name{font-family:var(--font-display);font-size:52px;letter-spacing:2px;line-height:1;margin-bottom:4px;transition:filter 0.25s;}
 .reveal-name.blurred{filter:blur(10px);user-select:none;}
+.reveal-name-secondary{font-family:var(--font-body);font-size:18px;color:var(--muted);margin-bottom:2px;transition:filter 0.25s;}
+.reveal-name-secondary.blurred{filter:blur(8px);user-select:none;}
 .reveal-name.pokemon-name{color:var(--poke);}
 .reveal-name.lol-name{color:var(--lol);}
 .reveal-name.free-name{color:var(--free);}
@@ -234,6 +236,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div id="offline-reveal-card" class="reveal-card theme-pokemon" onclick="offlineToggle()">
       <div id="offline-reveal-context" class="reveal-context pokemon-ctx"></div>
       <div id="offline-reveal-name" class="reveal-name pokemon-name blurred"></div>
+      <div id="offline-reveal-name2" class="reveal-name-secondary blurred" style="display:none;"></div>
       <div id="offline-reveal-hint" class="reveal-hint" data-i18n="gi.tapReveal">Tap to reveal</div>
     </div>
     <button class="btn-primary" style="margin-top:12px;" onclick="offlineGenerate()" data-i18n="gi.newRound">🎲 New Round</button>
@@ -471,14 +474,13 @@ window.addEventListener('langchange',()=>{
 // ════════════════════════════════════════════════════════════════
 function selectOfflineTheme(theme,btn){
   offTheme=theme;
-  document.querySelectorAll('#phase-offline .theme-btn').forEach(b=>b.classList.toggle('active',b.dataset.theme===t));
-  document.getElementById('offline-lol-cat').style.display=t==='lol'?'block':'none';
-  document.getElementById('offline-free-area').style.display=t==='free'?'block':'none';
-  // Reset generate area
-  document.getElementById('offline-gen-area').style.display=t==='free'?'none':'block';
+  document.querySelectorAll('#phase-offline .theme-btn').forEach(b=>b.classList.toggle('active',b.dataset.theme===theme));
+  document.getElementById('offline-lol-cat').style.display=theme==='lol'?'block':'none';
+  document.getElementById('offline-free-area').style.display=theme==='free'?'block':'none';
+  document.getElementById('offline-gen-area').style.display=theme==='free'?'none':'block';
   document.getElementById('offline-reveal-area').style.display='none';
   const genBtn=document.getElementById('offline-gen-btn');
-  if(genBtn)genBtn.disabled=false;
+  if(genBtn){genBtn.disabled=false;genBtn.textContent=t('gi.generate');}
 }
 
 function selectOfflineLolCat(cat,btn){
@@ -494,13 +496,18 @@ async function offlineGenerate(){
   const btn=document.getElementById('offline-gen-btn');
   if(btn){btn.disabled=true;btn.textContent='Loading…';}
   try{
-    let name='',context='';
+    let name='',name2='',context='';
     if(offTheme==='pokemon'){
       if(!pokemonList){
         const r=await fetch('/games/guess-it/data/pokemon.json');
         pokemonList=await r.json();
       }
-      name=pokemonList[Math.floor(Math.random()*pokemonList.length)];
+      const poke=pokemonList[Math.floor(Math.random()*pokemonList.length)];
+      // poke is {en, fr} — primary in current lang, secondary in the other
+      const isFr=typeof getLang==='function'&&getLang()==='fr';
+      name=isFr?poke.fr:poke.en;
+      name2=isFr?poke.en:poke.fr;
+      if(name===name2)name2='';
       context=t('gi.pokemon');
     }else if(offTheme==='lol'){
       if(!lolChampions){
@@ -511,10 +518,11 @@ async function offlineGenerate(){
       let cat=offLolCat;
       if(cat==='anything'){const opts=['champion','passive','q','w','e','r'];cat=opts[Math.floor(Math.random()*opts.length)];}
       if(cat==='spells'){const opts=['q','w','e','r'];cat=opts[Math.floor(Math.random()*opts.length)];}
-        name=cat==='champion'?champ.name:cat==='passive'?champ.passive:champ.spells[['q','w','e','r'].indexOf(cat)];
-        context=lolContext(cat,champ.name);
+      // Show champion+slot as answer, not the actual spell name
+      name=cat==='champion'?champ.name:lolContext(cat,champ.name);
+      context='League of Legends';
     }
-    showOfflineReveal(name,context);
+    showOfflineReveal(name,context,name2);
   }catch(e){
     toast(t('gi.errorLoad'));
     if(btn){btn.disabled=false;btn.textContent='🎲 Generate';}
@@ -527,18 +535,26 @@ function offlineSetFreeAnswer(){
   showOfflineReveal(val,'Free');
 }
 
-function showOfflineReveal(name,context){
+function showOfflineReveal(name,context,name2=''){
   offlineRevealed=false;
   const themeClass=offTheme==='pokemon'?'theme-pokemon':offTheme==='lol'?'theme-lol':'theme-free';
   document.getElementById('offline-reveal-card').className='reveal-card '+themeClass;
   const ctxEl=document.getElementById('offline-reveal-context');
   const nameEl=document.getElementById('offline-reveal-name');
+  const name2El=document.getElementById('offline-reveal-name2');
   const ctxClass=offTheme==='pokemon'?'pokemon-ctx':offTheme==='lol'?'lol-ctx':'free-ctx';
   const nameClass=offTheme==='pokemon'?'pokemon-name':offTheme==='lol'?'lol-name':'free-name';
   ctxEl.className='reveal-context '+ctxClass;
   nameEl.className='reveal-name '+nameClass+' blurred';
   ctxEl.textContent=context;
   nameEl.textContent=name;
+  if(name2){
+    name2El.textContent=name2;
+    name2El.style.display='block';
+    name2El.classList.add('blurred');
+  }else{
+    name2El.style.display='none';
+  }
   const hintEl=document.getElementById('offline-reveal-hint');
   hintEl.textContent=t('gi.tapReveal');
   hintEl.setAttribute('data-i18n','gi.tapReveal');
@@ -549,14 +565,17 @@ function showOfflineReveal(name,context){
 
 function offlineToggle(){
   const nameEl=document.getElementById('offline-reveal-name');
+  const name2El=document.getElementById('offline-reveal-name2');
   const hintEl=document.getElementById('offline-reveal-hint');
   if(nameEl.classList.contains('blurred')){
     nameEl.classList.remove('blurred');
+    name2El.classList.remove('blurred');
     hintEl.textContent=t('gi.tapHide');
     hintEl.setAttribute('data-i18n','gi.tapHide');
     offlineRevealed=true;
   }else{
     nameEl.classList.add('blurred');
+    name2El.classList.add('blurred');
     hintEl.textContent=t('gi.tapReveal');
     hintEl.setAttribute('data-i18n','gi.tapReveal');
     offlineRevealed=false;
