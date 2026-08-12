@@ -501,6 +501,9 @@ en: {
   'gi.invalidBadge': '✗ Invalid',
   'gi.pendingBadge': '⏳ Pending',
   'gi.you': '(You)',
+  'gi.generations': 'Generations',
+  'gi.genAll': '✓ All',
+  'gi.noGenSelected': 'Select at least one generation.',
 },
 
 // ─── FRENCH ───────────────────────────────────────────────────
@@ -1002,6 +1005,9 @@ fr: {
   'gi.invalidBadge': '✗ Invalide',
   'gi.pendingBadge': '⏳ En attente',
   'gi.you': '(Toi)',
+  'gi.generations': 'Générations',
+  'gi.genAll': '✓ Tout',
+  'gi.noGenSelected': 'Sélectionne au moins une génération.',
 },
 };
 

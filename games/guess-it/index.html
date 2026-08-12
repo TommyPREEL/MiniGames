@@ -58,7 +58,13 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .answer-input::placeholder{color:var(--muted);}
 .answer-input.hidden-val{color:transparent;text-shadow:0 0 8px var(--text);}
 
-/* Reveal card */
+/* Gen filter buttons */
+.gen-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.5rem;}
+.gen-btn{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;color:var(--muted);transition:all 0.15s;font-family:var(--font-body);letter-spacing:.04em;}
+.gen-btn:hover{border-color:var(--poke);color:var(--poke);}
+.gen-btn.active{border-color:var(--poke);color:var(--poke);background:rgba(255,203,5,0.08);}
+.gen-btn.gen-all{border-style:dashed;}
+.gen-btn.gen-all.active{border-style:solid;}
 .reveal-card{border:2px solid var(--border2);border-radius:var(--radius);padding:2rem 1.5rem;text-align:center;margin-bottom:1.5rem;cursor:pointer;transition:all 0.3s;}
 .reveal-card.theme-pokemon{border-color:rgba(255,203,5,0.35);background:rgba(255,203,5,0.04);}
 .reveal-card.theme-lol{border-color:rgba(200,170,110,0.35);background:rgba(200,170,110,0.04);}
@@ -205,6 +211,23 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <button class="theme-btn" data-theme="free" onclick="selectOfflineTheme('free',this)">
       <span class="theme-icon">✨</span><span class="theme-name" data-i18n="gi.themeFree">FREE</span>
     </button>
+  </div>
+
+  <!-- Pokemon generation filter -->
+  <div id="offline-pokemon-gen">
+    <div class="label" data-i18n="gi.generations">Generations</div>
+    <div class="gen-row">
+      <button class="gen-btn gen-all active" onclick="toggleAllGens(this)" data-i18n="gi.genAll">✓ All</button>
+      <button class="gen-btn active" data-gen="1" onclick="toggleGen(1,this)">I</button>
+      <button class="gen-btn active" data-gen="2" onclick="toggleGen(2,this)">II</button>
+      <button class="gen-btn active" data-gen="3" onclick="toggleGen(3,this)">III</button>
+      <button class="gen-btn active" data-gen="4" onclick="toggleGen(4,this)">IV</button>
+      <button class="gen-btn active" data-gen="5" onclick="toggleGen(5,this)">V</button>
+      <button class="gen-btn active" data-gen="6" onclick="toggleGen(6,this)">VI</button>
+      <button class="gen-btn active" data-gen="7" onclick="toggleGen(7,this)">VII</button>
+      <button class="gen-btn active" data-gen="8" onclick="toggleGen(8,this)">VIII</button>
+      <button class="gen-btn active" data-gen="9" onclick="toggleGen(9,this)">IX</button>
+    </div>
   </div>
 
   <!-- LoL category -->
@@ -448,6 +471,7 @@ let preGameHubScores={};
 let offTheme='pokemon', offLolCat='anything';
 let pokemonList=null, lolChampions=null;
 let offlineRevealed=false;
+let offPokemonGens=new Set([1,2,3,4,5,6,7,8,9]);
 
 // ════════════════════════════════════════════════════════════════
 // Boot
@@ -475,12 +499,25 @@ window.addEventListener('langchange',()=>{
 function selectOfflineTheme(theme,btn){
   offTheme=theme;
   document.querySelectorAll('#phase-offline .theme-btn').forEach(b=>b.classList.toggle('active',b.dataset.theme===theme));
+  document.getElementById('offline-pokemon-gen').style.display=theme==='pokemon'?'block':'none';
   document.getElementById('offline-lol-cat').style.display=theme==='lol'?'block':'none';
   document.getElementById('offline-free-area').style.display=theme==='free'?'block':'none';
   document.getElementById('offline-gen-area').style.display=theme==='free'?'none':'block';
   document.getElementById('offline-reveal-area').style.display='none';
   const genBtn=document.getElementById('offline-gen-btn');
   if(genBtn){genBtn.disabled=false;genBtn.textContent=t('gi.generate');}
+}
+
+function toggleGen(n,btn){
+  if(offPokemonGens.has(n)){offPokemonGens.delete(n);btn.classList.remove('active');}
+  else{offPokemonGens.add(n);btn.classList.add('active');}
+  document.querySelector('#offline-pokemon-gen .gen-all').classList.toggle('active',offPokemonGens.size===9);
+}
+
+function toggleAllGens(btn){
+  const allSelected=offPokemonGens.size===9;
+  for(let i=1;i<=9;i++){allSelected?offPokemonGens.delete(i):offPokemonGens.add(i);}
+  document.querySelectorAll('#offline-pokemon-gen .gen-btn').forEach(b=>b.classList.toggle('active',!allSelected));
 }
 
 function selectOfflineLolCat(cat,btn){
@@ -502,8 +539,10 @@ async function offlineGenerate(){
         const r=await fetch('/games/guess-it/data/pokemon.json');
         pokemonList=await r.json();
       }
-      const poke=pokemonList[Math.floor(Math.random()*pokemonList.length)];
-      // poke is {en, fr} — primary in current lang, secondary in the other
+      const pool=pokemonList.filter(p=>offPokemonGens.has(p.gen));
+      if(!pool.length){toast(t('gi.noGenSelected'));if(btn){btn.disabled=false;btn.textContent=t('gi.generate');}return;}
+      const poke=pool[Math.floor(Math.random()*pool.length)];
+      // poke is {en, fr, gen} — primary in current lang, secondary in the other
       const isFr=typeof getLang==='function'&&getLang()==='fr';
       name=isFr?poke.fr:poke.en;
       name2=isFr?poke.en:poke.fr;
