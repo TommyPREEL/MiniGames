@@ -820,15 +820,15 @@ function updateReadyUI() {
     btn.classList.toggle('ready', amReady);
     btn.textContent = amReady ? t('hub.readyUnready') : t('hub.ready');
   }
-  // Host launch button — locked until all non-host players are ready
+  // Host launch button — informational only, host can always launch
   const launchBtn = document.getElementById('btn-launch');
   const hint = document.getElementById('launch-hint');
   if (launchBtn && isHost) {
     const guests = hubPlayers.filter(p => p !== hubHostName);
     const allReady = guests.length > 0 && guests.every(p => hubReadySet.has(p));
     const notReady = guests.filter(p => !hubReadySet.has(p));
-    launchBtn.disabled = !allReady;
-    launchBtn.style.opacity = allReady ? '1' : '0.45';
+    launchBtn.disabled = false;
+    launchBtn.style.opacity = '1';
     if (guests.length === 0) {
       hint.textContent = t('hub.noPlayers');
     } else if (!allReady) {
