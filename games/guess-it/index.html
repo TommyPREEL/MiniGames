@@ -39,7 +39,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .theme-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.5rem;}
 .theme-btn{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:14px 8px;cursor:pointer;text-align:center;transition:all 0.15s;color:var(--text);font-family:var(--font-body);display:flex;flex-direction:column;gap:4px;align-items:center;}
 .theme-icon{font-size:24px;}
-.theme-name{font-family:var(--font-display);font-size:15px;letter-spacing:1px;}
+.theme-name{font-family:var(--font-display);font-size:12px;letter-spacing:.5px;}
 .theme-btn:hover{border-color:var(--border2);background:var(--surface2);}
 .theme-btn[data-theme="pokemon"].active{border-color:var(--poke);background:rgba(255,203,5,0.07);color:var(--poke);}
 .theme-btn[data-theme="lol"].active{border-color:var(--lol);background:rgba(200,170,110,0.07);color:var(--lol);}
@@ -59,18 +59,17 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .answer-input.hidden-val{color:transparent;text-shadow:0 0 8px var(--text);}
 
 /* Reveal card */
-.reveal-card{border:2px solid var(--border2);border-radius:var(--radius);padding:2rem 1.5rem;text-align:center;margin-bottom:1.5rem;position:relative;overflow:hidden;transition:all 0.3s;}
+.reveal-card{border:2px solid var(--border2);border-radius:var(--radius);padding:2rem 1.5rem;text-align:center;margin-bottom:1.5rem;cursor:pointer;transition:all 0.3s;}
 .reveal-card.theme-pokemon{border-color:rgba(255,203,5,0.35);background:rgba(255,203,5,0.04);}
 .reveal-card.theme-lol{border-color:rgba(200,170,110,0.35);background:rgba(200,170,110,0.04);}
 .reveal-card.theme-free{border-color:rgba(168,85,247,0.35);background:rgba(168,85,247,0.04);}
-.reveal-hidden{cursor:pointer;}
-.reveal-question{font-family:var(--font-display);font-size:80px;color:var(--border2);letter-spacing:4px;line-height:1;margin-bottom:.5rem;}
-.reveal-hint{font-size:13px;color:var(--muted);}
+.reveal-hint{font-size:12px;color:var(--muted);margin-top:.5rem;}
 .reveal-context{font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
 .reveal-context.pokemon-ctx{color:var(--poke);}
 .reveal-context.lol-ctx{color:var(--lol);}
 .reveal-context.free-ctx{color:var(--free);}
-.reveal-name{font-family:var(--font-display);font-size:52px;letter-spacing:2px;line-height:1;margin-bottom:4px;}
+.reveal-name{font-family:var(--font-display);font-size:52px;letter-spacing:2px;line-height:1;margin-bottom:4px;transition:filter 0.25s;}
+.reveal-name.blurred{filter:blur(10px);user-select:none;}
 .reveal-name.pokemon-name{color:var(--poke);}
 .reveal-name.lol-name{color:var(--lol);}
 .reveal-name.free-name{color:var(--free);}
@@ -189,20 +188,20 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
      OFFLINE MODE
 ══════════════════════════════════════════════════════════════ -->
 <div class="phase" id="phase-offline">
-  <a class="back-btn" href="/">← BACK</a>
+  <a class="back-btn" href="/" data-i18n="gi.back">← BACK</a>
   <div class="logo">GUESS<span>IT</span></div>
-  <div class="tagline">RANDOMIZER — LOCAL PLAY</div>
+  <div class="tagline" data-i18n="gi.tagline">RANDOMIZER — LOCAL PLAY</div>
 
-  <div class="label">Theme</div>
+  <div class="label" data-i18n="gi.theme">Theme</div>
   <div class="theme-row">
     <button class="theme-btn active" data-theme="pokemon" onclick="selectOfflineTheme('pokemon',this)">
-      <span class="theme-icon">🎮</span><span class="theme-name">POKÉMON</span>
+      <span class="theme-icon">🎮</span><span class="theme-name" data-i18n="gi.themePokemon">POKÉMON</span>
     </button>
     <button class="theme-btn" data-theme="lol" onclick="selectOfflineTheme('lol',this)">
-      <span class="theme-icon">⚔️</span><span class="theme-name">LEAGUE</span>
+      <span class="theme-icon">⚔️</span><span class="theme-name" data-i18n="gi.themeLol">LEAGUE OF LEGENDS</span>
     </button>
     <button class="theme-btn" data-theme="free" onclick="selectOfflineTheme('free',this)">
-      <span class="theme-icon">✨</span><span class="theme-name">FREE</span>
+      <span class="theme-icon">✨</span><span class="theme-name" data-i18n="gi.themeFree">FREE</span>
     </button>
   </div>
 
@@ -216,41 +215,33 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <button class="lol-cat-btn" data-cat="spells" onclick="selectOfflineLolCat('spells',this)" data-i18n="gi.lolCatSpells">💫 All Spells</button>
       <button class="lol-cat-btn" id="offline-slot-q" data-cat="q" onclick="selectOfflineLolCat('q',this)"></button>
       <button class="lol-cat-btn" id="offline-slot-w" data-cat="w" onclick="selectOfflineLolCat('w',this)"></button>
-      <button class="lol-cat-btn" data-cat="e" onclick="selectOfflineLolCat('e',this)">E Spell</button>
-      <button class="lol-cat-btn" data-cat="r" onclick="selectOfflineLolCat('r',this)">R Spell</button>
+      <button class="lol-cat-btn" id="offline-slot-e" data-cat="e" onclick="selectOfflineLolCat('e',this)"></button>
+      <button class="lol-cat-btn" id="offline-slot-r" data-cat="r" onclick="selectOfflineLolCat('r',this)"></button>
     </div>
   </div>
 
   <!-- Free mode answer input -->
   <div id="offline-free-area" style="display:none;">
-    <div class="label">Answer to hide</div>
+    <div class="label" data-i18n="gi.answerToHide">Answer to hide</div>
     <div class="answer-input-wrap">
-      <input type="text" class="answer-input" id="offline-free-answer" placeholder="Enter what others must guess…" maxlength="100" autocomplete="off"/>
+      <input type="text" class="answer-input" id="offline-free-answer" data-i18n="gi.answerPlaceholder" data-i18n-attr="placeholder" placeholder="Enter what others must guess…" maxlength="100" autocomplete="off"/>
     </div>
-    <button class="btn-primary" onclick="offlineSetFreeAnswer()">HIDE ANSWER →</button>
+    <button class="btn-primary" onclick="offlineSetFreeAnswer()" data-i18n="gi.hideAnswer">HIDE ANSWER →</button>
   </div>
 
   <!-- Reveal card (hidden until generated) -->
   <div id="offline-reveal-area" style="display:none;">
-    <div id="offline-reveal-card" class="reveal-card theme-pokemon reveal-hidden" onclick="offlineReveal()">
-      <div id="offline-cover">
-        <div class="reveal-question">?</div>
-        <div class="reveal-hint">Tap to reveal</div>
-      </div>
-      <div id="offline-revealed" style="display:none;">
-        <div id="offline-reveal-context" class="reveal-context pokemon-ctx"></div>
-        <div id="offline-reveal-name" class="reveal-name pokemon-name"></div>
-      </div>
+    <div id="offline-reveal-card" class="reveal-card theme-pokemon" onclick="offlineToggle()">
+      <div id="offline-reveal-context" class="reveal-context pokemon-ctx"></div>
+      <div id="offline-reveal-name" class="reveal-name pokemon-name blurred"></div>
+      <div id="offline-reveal-hint" class="reveal-hint" data-i18n="gi.tapReveal">Tap to reveal</div>
     </div>
-    <div style="display:flex;gap:8px;margin-top:0;">
-      <button id="offline-toggle-btn" class="btn-secondary" style="margin-top:0;" onclick="offlineToggle()">👁 Hide</button>
-      <button class="btn-primary" style="flex:1;" onclick="offlineGenerate()">🎲 New Round</button>
-    </div>
+    <button class="btn-primary" style="margin-top:12px;" onclick="offlineGenerate()" data-i18n="gi.newRound">🎲 New Round</button>
   </div>
 
   <!-- Generate button (initial) -->
   <div id="offline-gen-area">
-    <button class="btn-primary" id="offline-gen-btn" onclick="offlineGenerate()">🎲 Generate</button>
+    <button class="btn-primary" id="offline-gen-btn" onclick="offlineGenerate()" data-i18n="gi.generate">🎲 Generate</button>
   </div>
 </div>
 
@@ -260,29 +251,29 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <div class="phase" id="phase-mp-waiting">
   <a class="back-btn" href="#" onclick="mpLeave();return false;">← LOBBY</a>
   <div class="section-title">🎯 GUESS <span style="color:var(--accent)">IT</span></div>
-  <div class="section-sub">Collaborative guessing game</div>
+  <div class="section-sub" data-i18n="gi.subtitle">Collaborative guessing game</div>
 
-  <div class="label">Players (<span id="waiting-count">0</span>)</div>
+  <div class="label"><span data-i18n="players">Players</span> (<span id="waiting-count">0</span>)</div>
   <div id="waiting-player-list" class="player-list"></div>
 
   <!-- Hub scores (if any) -->
   <div id="waiting-hub-scores" style="display:none;margin-bottom:1.5rem;">
-    <div class="label">Global scores</div>
+    <div class="label" data-i18n="globalScores">Global scores</div>
     <div id="waiting-hub-scores-body"></div>
   </div>
 
   <!-- Host config -->
   <div id="waiting-host-area" style="display:none;">
-    <div class="label">Theme</div>
+    <div class="label" data-i18n="gi.theme">Theme</div>
     <div class="theme-row" style="margin-bottom:1rem;">
       <button class="theme-btn active" data-theme="pokemon" onclick="selectMpTheme('pokemon',this)">
-        <span class="theme-icon">🎮</span><span class="theme-name">POKÉMON</span>
+        <span class="theme-icon">🎮</span><span class="theme-name" data-i18n="gi.themePokemon">POKÉMON</span>
       </button>
       <button class="theme-btn" data-theme="lol" onclick="selectMpTheme('lol',this)">
-        <span class="theme-icon">⚔️</span><span class="theme-name">LEAGUE</span>
+        <span class="theme-icon">⚔️</span><span class="theme-name" data-i18n="gi.themeLol">LEAGUE OF LEGENDS</span>
       </button>
       <button class="theme-btn" data-theme="free" onclick="selectMpTheme('free',this)">
-        <span class="theme-icon">✨</span><span class="theme-name">FREE</span>
+        <span class="theme-icon">✨</span><span class="theme-name" data-i18n="gi.themeFree">FREE</span>
       </button>
     </div>
 
@@ -295,16 +286,16 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         <button class="lol-cat-btn" data-cat="spells" onclick="selectMpLolCat('spells',this)" data-i18n="gi.lolCatSpells">💫 All Spells</button>
         <button class="lol-cat-btn" id="mp-slot-q" data-cat="q" onclick="selectMpLolCat('q',this)"></button>
         <button class="lol-cat-btn" id="mp-slot-w" data-cat="w" onclick="selectMpLolCat('w',this)"></button>
-        <button class="lol-cat-btn" data-cat="e" onclick="selectMpLolCat('e',this)">E Spell</button>
-        <button class="lol-cat-btn" data-cat="r" onclick="selectMpLolCat('r',this)">R Spell</button>
+        <button class="lol-cat-btn" id="mp-slot-e" data-cat="e" onclick="selectMpLolCat('e',this)"></button>
+        <button class="lol-cat-btn" id="mp-slot-r" data-cat="r" onclick="selectMpLolCat('r',this)"></button>
       </div>
     </div>
 
-    <button class="btn-primary" onclick="mpStartGame()" id="mp-start-btn">START GAME →</button>
+    <button class="btn-primary" onclick="mpStartGame()" id="mp-start-btn" data-i18n="gi.startGame">START GAME →</button>
   </div>
 
   <div id="waiting-guest-area" style="display:none;">
-    <div class="waiting-msg">Waiting for host to start the game…</div>
+    <div class="waiting-msg" data-i18n="gi.waitingHost">Waiting for host to start the game…</div>
   </div>
 </div>
 
@@ -314,18 +305,18 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <div class="phase" id="phase-free-input">
   <div class="section-title">🎯 GUESS <span style="color:var(--accent)">IT</span></div>
   <div id="free-input-guesseur" style="display:none;">
-    <div class="section-sub" style="margin-bottom:1.5rem;">You are the <strong style="color:var(--accent)">Guesseur</strong> — set the answer, then give hints to the others.</div>
-    <div class="label">Answer (hidden from others)</div>
+    <div class="section-sub" style="margin-bottom:1.5rem;" data-i18n="gi.guesseurSetupSub" data-i18n-html>You are the <strong style="color:var(--accent)">Guesseur</strong> — set the answer, then give hints to the others.</div>
+    <div class="label" data-i18n="gi.answerHiddenLabel">Answer (hidden from others)</div>
     <div class="answer-input-wrap" style="margin-bottom:1rem;">
-      <input type="text" class="answer-input" id="mp-free-answer-input" placeholder="What must others guess?" maxlength="100" autocomplete="off"/>
+      <input type="text" class="answer-input" id="mp-free-answer-input" data-i18n="gi.freeAnswerPlaceholder" data-i18n-attr="placeholder" placeholder="What must others guess?" maxlength="100" autocomplete="off"/>
     </div>
-    <button class="btn-primary" onclick="mpSetFreeAnswer()" id="mp-free-start-btn">START GAME →</button>
+    <button class="btn-primary" onclick="mpSetFreeAnswer()" id="mp-free-start-btn" data-i18n="gi.startGame">START GAME →</button>
   </div>
   <div id="free-input-player" style="display:none;">
     <div class="free-wait-card">
       <div class="free-wait-icon">✨</div>
-      <div class="free-wait-title">FREE MODE</div>
-      <div class="free-wait-sub" id="free-wait-guesseur-name">The Guesseur is choosing the answer…</div>
+      <div class="free-wait-title" data-i18n="gi.freeModeName">FREE MODE</div>
+      <div class="free-wait-sub" id="free-wait-guesseur-name"></div>
     </div>
     <div class="waiting-msg">Get ready to guess!</div>
   </div>
@@ -343,43 +334,43 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
   <!-- Guesseur: answer display -->
   <div id="playing-answer-box" class="answer-box" style="display:none;">
-    <span class="answer-box-label">Answer</span>
+    <span class="answer-box-label" data-i18n="gi.answerBoxLabel">Answer</span>
     <span class="answer-box-value" id="playing-answer-value"></span>
     <span class="answer-box-context" id="playing-answer-context"></span>
   </div>
 
   <!-- Guesseur: hint input -->
   <div id="playing-hint-area" style="display:none;">
-    <div class="label">Add a hint</div>
+    <div class="label" data-i18n="gi.addHint">Add a hint</div>
     <div class="hint-input-row">
-      <input type="text" class="hint-input" id="playing-hint-input" placeholder="Give a clue to help them guess…" maxlength="200" autocomplete="off" onkeydown="if(event.key==='Enter')addHint()"/>
-      <button class="hint-send-btn" onclick="addHint()">HINT</button>
+      <input type="text" class="hint-input" id="playing-hint-input" data-i18n="gi.hintPlaceholder" data-i18n-attr="placeholder" placeholder="Give a clue to help them guess…" maxlength="200" autocomplete="off" onkeydown="if(event.key==='Enter')addHint()"/>
+      <button class="hint-send-btn" onclick="addHint()" data-i18n="gi.hintBtn">HINT</button>
     </div>
   </div>
 
   <!-- Players: propose area -->
   <div id="playing-propose-area" style="display:none;">
-    <div class="label">Propose a guess or question</div>
+    <div class="label" data-i18n="gi.proposeLabel">Propose a guess or question</div>
     <div class="hint-input-row">
-      <input type="text" class="hint-input" id="playing-propose-input" placeholder="Your guess or question…" maxlength="200" autocomplete="off" onkeydown="if(event.key==='Enter')proposeHint()"/>
-      <button class="hint-send-btn propose" onclick="proposeHint()">SEND</button>
+      <input type="text" class="hint-input" id="playing-propose-input" data-i18n="gi.proposePlaceholder" data-i18n-attr="placeholder" placeholder="Your guess or question…" maxlength="200" autocomplete="off" onkeydown="if(event.key==='Enter')proposeHint()"/>
+      <button class="hint-send-btn propose" onclick="proposeHint()" data-i18n="gi.sendBtn">SEND</button>
     </div>
   </div>
 
   <!-- Hint board -->
   <div class="hints-section">
-    <div class="label">Hints &amp; Guesses (<span id="hint-count">0</span>)</div>
+    <div class="label"><span data-i18n="gi.hintsAndGuesses">Hints &amp; Guesses</span> (<span id="hint-count">0</span>)</div>
     <div id="hint-list" class="hint-list">
-      <div class="hints-empty" id="hints-empty">No hints yet. The guesseur will give the first clue!</div>
+      <div class="hints-empty" id="hints-empty" data-i18n="gi.hintsEmpty">No hints yet. The guesseur will give the first clue!</div>
     </div>
   </div>
 
   <!-- Guesseur: end game -->
   <div id="playing-end-area" style="display:none;">
     <div class="end-game-area">
-      <div class="end-game-label">End the game</div>
+      <div class="end-game-label" data-i18n="gi.endGame">End the game</div>
       <div class="winner-grid" id="winner-grid"></div>
-      <button class="nobody-btn" onclick="endGame('')">Nobody found it 😔</button>
+      <button class="nobody-btn" onclick="endGame('')" data-i18n="gi.nobodyFound">Nobody found it 😔</button>
     </div>
   </div>
 </div>
@@ -391,18 +382,18 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div id="result-hero" class="result-hero has-winner">
     <div class="result-label" id="result-label">WINNER</div>
     <div class="result-winner" id="result-winner">—</div>
-    <div class="result-answer-label">The answer was</div>
+    <div class="result-answer-label" data-i18n="gi.answerWasLabel">The answer was</div>
     <div class="result-answer" id="result-answer"></div>
     <div class="result-context" id="result-context"></div>
   </div>
 
   <!-- Hub scores -->
   <div id="result-scores-section" style="display:none;">
-    <div class="label">Points earned this round</div>
+    <div class="label" data-i18n="gi.pointsRound">Points earned this round</div>
     <div class="scores-box" id="result-scores-box"></div>
   </div>
 
-  <button class="btn-ghost" onclick="mpReturnToHub()">← BACK TO LOBBY</button>
+  <button class="btn-ghost" onclick="mpReturnToHub()" data-i18n="gi.backLobby">← BACK TO LOBBY</button>
 </div>
 
 </div><!-- /container -->
@@ -434,7 +425,7 @@ function updateSlotButtons(){
   ['offline','mp'].forEach(pfx=>{
     slots.forEach(s=>{
       const btn=document.getElementById(pfx+'-slot-'+s);
-      if(btn)btn.textContent=lolSlot(s)+' Spell';
+      if(btn)btn.textContent=lolSlot(s)+' '+t('gi.spell');
     });
   });
 }
@@ -478,8 +469,8 @@ window.addEventListener('langchange',()=>{
 // ════════════════════════════════════════════════════════════════
 // OFFLINE MODE
 // ════════════════════════════════════════════════════════════════
-function selectOfflineTheme(t,btn){
-  offTheme=t;
+function selectOfflineTheme(theme,btn){
+  offTheme=theme;
   document.querySelectorAll('#phase-offline .theme-btn').forEach(b=>b.classList.toggle('active',b.dataset.theme===t));
   document.getElementById('offline-lol-cat').style.display=t==='lol'?'block':'none';
   document.getElementById('offline-free-area').style.display=t==='free'?'block':'none';
@@ -525,7 +516,7 @@ async function offlineGenerate(){
     }
     showOfflineReveal(name,context);
   }catch(e){
-    toast('Error loading data. Check your connection.');
+    toast(t('gi.errorLoad'));
     if(btn){btn.disabled=false;btn.textContent='🎲 Generate';}
   }
 }
@@ -538,60 +529,37 @@ function offlineSetFreeAnswer(){
 
 function showOfflineReveal(name,context){
   offlineRevealed=false;
-  const card=document.getElementById('offline-reveal-card');
   const themeClass=offTheme==='pokemon'?'theme-pokemon':offTheme==='lol'?'theme-lol':'theme-free';
-  card.className='reveal-card '+themeClass+' reveal-hidden';
-
-  document.getElementById('offline-cover').style.display='block';
-  document.getElementById('offline-revealed').style.display='none';
-
+  document.getElementById('offline-reveal-card').className='reveal-card '+themeClass;
   const ctxEl=document.getElementById('offline-reveal-context');
   const nameEl=document.getElementById('offline-reveal-name');
   const ctxClass=offTheme==='pokemon'?'pokemon-ctx':offTheme==='lol'?'lol-ctx':'free-ctx';
   const nameClass=offTheme==='pokemon'?'pokemon-name':offTheme==='lol'?'lol-name':'free-name';
   ctxEl.className='reveal-context '+ctxClass;
-  nameEl.className='reveal-name '+nameClass;
+  nameEl.className='reveal-name '+nameClass+' blurred';
   ctxEl.textContent=context;
   nameEl.textContent=name;
-
-  const card2=document.getElementById('offline-reveal-card');
-  card2.onclick=offlineToggle;
-  document.getElementById('offline-toggle-btn').textContent='\ud83d\udc41 Show';
+  const hintEl=document.getElementById('offline-reveal-hint');
+  hintEl.textContent=t('gi.tapReveal');
+  hintEl.setAttribute('data-i18n','gi.tapReveal');
   document.getElementById('offline-gen-area').style.display='none';
   document.getElementById('offline-free-area').style.display='none';
   document.getElementById('offline-reveal-area').style.display='block';
 }
 
-function offlineReveal(){
-  if(offlineRevealed)return;
-  offlineRevealed=true;
-  const card=document.getElementById('offline-reveal-card');
-  card.classList.remove('reveal-hidden');
-  card.onclick=null;
-  document.getElementById('offline-cover').style.display='none';
-  document.getElementById('offline-revealed').style.display='block';
-  document.getElementById('offline-toggle-btn').textContent='👁 Hide';
-}
-
 function offlineToggle(){
-  if(!offlineRevealed){offlineReveal();return;}
-  const card=document.getElementById('offline-reveal-card');
-  const revealed=document.getElementById('offline-revealed');
-  const cover=document.getElementById('offline-cover');
-  const btn=document.getElementById('offline-toggle-btn');
-  const hidden=cover.style.display!=='none';
-  if(hidden){
-    cover.style.display='none';
-    revealed.style.display='block';
-    card.classList.remove('reveal-hidden');
-    card.onclick=null;
-    btn.textContent='👁 Hide';
+  const nameEl=document.getElementById('offline-reveal-name');
+  const hintEl=document.getElementById('offline-reveal-hint');
+  if(nameEl.classList.contains('blurred')){
+    nameEl.classList.remove('blurred');
+    hintEl.textContent=t('gi.tapHide');
+    hintEl.setAttribute('data-i18n','gi.tapHide');
+    offlineRevealed=true;
   }else{
-    cover.style.display='block';
-    revealed.style.display='none';
-    card.classList.add('reveal-hidden');
-    card.onclick=offlineToggle;
-    btn.textContent='👁 Show';
+    nameEl.classList.add('blurred');
+    hintEl.textContent=t('gi.tapReveal');
+    hintEl.setAttribute('data-i18n','gi.tapReveal');
+    offlineRevealed=false;
   }
 }
 
@@ -654,8 +622,8 @@ function updateWaitingUI(){
   document.getElementById('waiting-guest-area').style.display=isHost?'none':'block';
 }
 
-function selectMpTheme(t,btn){
-  mpTheme=t;
+function selectMpTheme(theme,btn){
+  mpTheme=theme;
   document.querySelectorAll('#waiting-host-area .theme-btn').forEach(b=>b.classList.toggle('active',b.dataset.theme===t));
   document.getElementById('mp-lol-cat').style.display=t==='lol'?'block':'none';
 }
@@ -699,7 +667,7 @@ function onGiStart(msg){
       document.getElementById('free-input-guesseur').style.display='none';
       document.getElementById('free-input-player').style.display='block';
       document.getElementById('free-wait-guesseur-name').textContent=
-        esc(guesseurName)+' is choosing the answer…';
+        t('gi.freeWaiting',{name:guesseurName});
     }
   }else{
     enterPlayingPhase();
@@ -711,7 +679,7 @@ function onGiStart(msg){
 // ════════════════════════════════════════════════════════════════
 function mpSetFreeAnswer(){
   const val=document.getElementById('mp-free-answer-input').value.trim();
-  if(!val){toast('Enter an answer first!');return;}
+  if(!val){toast(t('gi.enterAnswer'));return;}
   myAnswer=val;
   document.getElementById('mp-free-start-btn').disabled=true;
   wsSend({type:'gi_set_answer',answer:val});
@@ -733,7 +701,7 @@ function enterPlayingPhase(){
   const roleText=document.getElementById('playing-role-text');
   if(myRole==='guesseur'){
     roleBanner.className='role-banner is-guesseur';
-    roleText.innerHTML='🎯 You are the <strong>Guesseur</strong> — give hints, validate guesses, end the game when someone finds it.';
+    roleText.innerHTML=t('gi.guesseurRole');
     document.getElementById('playing-answer-box').style.display='flex';
     document.getElementById('playing-hint-area').style.display='block';
     document.getElementById('playing-propose-area').style.display='none';
@@ -752,7 +720,7 @@ function enterPlayingPhase(){
     }
   }else{
     roleBanner.className='role-banner is-player';
-    roleText.innerHTML='👥 Guesseur: <strong>'+esc(guesseurName)+'</strong> — propose guesses and listen to their hints!';
+    roleText.innerHTML=t('gi.playerRole',{name:esc(guesseurName)});
     document.getElementById('playing-answer-box').style.display='none';
     document.getElementById('playing-hint-area').style.display='none';
     document.getElementById('playing-propose-area').style.display='block';
@@ -765,7 +733,7 @@ function enterPlayingPhase(){
 function renderWinnerGrid(){
   const grid=document.getElementById('winner-grid');
   const others=giPlayers.filter(n=>n!==guesseurName);
-  grid.innerHTML=others.map(n=>`<button class="winner-btn" onclick="endGame('${esc(n)}')">${esc(n)} found it! 🎉</button>`).join('');
+  grid.innerHTML=others.map(n=>`<button class="winner-btn" onclick="endGame('${esc(n)}')">${t('gi.foundIt',{name:esc(n)})}</button>`).join('');
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -828,13 +796,13 @@ function renderHintItem(h){
   const authorClass=isGuesseurHint?'guesseur-author':'player-author';
   let badgeHtml='';
   if(isGuesseurHint){
-    badgeHtml=`<span class="hint-badge badge-guesseur">🎯 Guesseur</span>`;
+    badgeHtml=`<span class="hint-badge badge-guesseur">${t('gi.guesseurBadge')}</span>`;
   }else if(h.state==='valid'){
-    badgeHtml=`<span class="hint-badge badge-valid">✓ Valid</span>`;
+    badgeHtml=`<span class="hint-badge badge-valid">${t('gi.validBadge')}</span>`;
   }else if(h.state==='invalid'){
-    badgeHtml=`<span class="hint-badge badge-invalid">✗ Invalid</span>`;
+    badgeHtml=`<span class="hint-badge badge-invalid">${t('gi.invalidBadge')}</span>`;
   }else{
-    badgeHtml=`<span class="hint-badge badge-pending">⏳ Pending</span>`;
+    badgeHtml=`<span class="hint-badge badge-pending">${t('gi.pendingBadge')}</span>`;
   }
   let actionsHtml='';
   if(myRole==='guesseur'&&!isGuesseurHint&&h.state==='pending'){
@@ -872,11 +840,11 @@ function onGameOver(msg){
 
   if(msg.winner){
     hero.className='result-hero has-winner';
-    label.textContent='WINNER';
-    winnerEl.textContent=msg.winner+(msg.winner===myName?' (You)':'');
+    label.textContent=t('gi.winnerLabel');
+    winnerEl.textContent=msg.winner+(msg.winner===myName?' '+t('gi.you'):'');
   }else{
     hero.className='result-hero no-winner';
-    label.textContent='NOBODY FOUND IT';
+    label.textContent=t('gi.nobodyFoundLabel');
     winnerEl.textContent='¯\\_(ツ)_/¯';
   }
 
@@ -936,7 +904,7 @@ function onRejoin(msg){
     }else{
       document.getElementById('free-input-guesseur').style.display='none';
       document.getElementById('free-input-player').style.display='block';
-      document.getElementById('free-wait-guesseur-name').textContent=esc(guesseurName)+' is choosing the answer…';
+      document.getElementById('free-wait-guesseur-name').textContent=t('gi.freeWaiting',{name:guesseurName});
     }
   }else if(msg.giPhase==='playing'){
     enterPlayingPhase();
